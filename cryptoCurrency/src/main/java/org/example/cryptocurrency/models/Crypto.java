@@ -2,6 +2,7 @@ package org.example.cryptocurrency.models;
 
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,9 +18,11 @@ public class Crypto {
     @Column(name = "name")
     private String name;
     @Column(name = "current_price")
-    private double currentPrice;
+    private BigDecimal currentPrice;
     @OneToMany(mappedBy = "crypto", cascade = CascadeType.ALL)
     private List<Transaction> transactions = new ArrayList<>();
+    @OneToMany(mappedBy = "crypto", cascade = CascadeType.ALL)
+    private List<UserHoldings> holdings = new ArrayList<>();
     public Crypto() {
     }
 
@@ -47,11 +50,11 @@ public class Crypto {
         this.name = name;
     }
 
-    public double getCurrentPrice() {
+    public BigDecimal  getCurrentPrice() {
         return currentPrice;
     }
 
-    public void setCurrentPrice(double currentPrice) {
+    public void setCurrentPrice(BigDecimal  currentPrice) {
         this.currentPrice = currentPrice;
     }
     public List<Transaction> getTransactions() {
@@ -59,5 +62,13 @@ public class Crypto {
     }
     public void setTransactions(List<Transaction> transactions) {
         this.transactions = transactions;
+    }
+
+    public List<UserHoldings> getHoldings() {
+        return holdings;
+    }
+
+    public void setHoldings(List<UserHoldings> holdings) {
+        this.holdings = holdings;
     }
 }

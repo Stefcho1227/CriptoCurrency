@@ -2,6 +2,7 @@ package org.example.cryptocurrency.models;
 
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -21,13 +22,13 @@ public class Transaction {
     private Crypto crypto;
 
     @Column(name = "quantity")
-    private double quantity;
+    private BigDecimal quantity;
 
     @Column(name = "transaction_price")
-    private double transactionPrice;
+    private BigDecimal  transactionPrice;
 
     @Column(name = "transaction_type")
-    private String transactionType;  // "BUY" or "SELL"
+    private String transactionType;
 
     @Column(name = "transaction_time", updatable = false)
     private LocalDateTime transactionTime;
@@ -57,17 +58,17 @@ public class Transaction {
         this.crypto = crypto;
     }
 
-    public double getQuantity() {
+    public BigDecimal  getQuantity() {
         return quantity;
     }
-    public void setQuantity(double quantity) {
+    public void setQuantity(BigDecimal  quantity) {
         this.quantity = quantity;
     }
 
-    public double getTransactionPrice() {
+    public BigDecimal  getTransactionPrice() {
         return transactionPrice;
     }
-    public void setTransactionPrice(double transactionPrice) {
+    public void setTransactionPrice(BigDecimal  transactionPrice) {
         this.transactionPrice = transactionPrice;
     }
 

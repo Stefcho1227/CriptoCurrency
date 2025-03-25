@@ -7,11 +7,11 @@ import org.example.cryptocurrency.service.contracts.CryptoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 @Service
 public class CryptoServiceImpl implements CryptoService {
     private final CryptoRepository cryptoRepository;
-    private static final double STARTING_PRICE = 10000.0;
     @Autowired
     CryptoServiceImpl(CryptoRepository cryptoRepository){
         this.cryptoRepository = cryptoRepository;
@@ -42,7 +42,7 @@ public class CryptoServiceImpl implements CryptoService {
     }
 
     @Override
-    public Crypto update(String symbol, String name, double price) {
+    public Crypto update(String symbol, String name, BigDecimal price) {
         Crypto existing = getBySymbol(symbol);
         existing.setName(name);
         existing.setCurrentPrice(price);
@@ -51,9 +51,11 @@ public class CryptoServiceImpl implements CryptoService {
 
     @Override
     public void deleteCrypto(Integer id) {
-        if (cryptoRepository.findById(id).isEmpty()) {
-            throw new IllegalArgumentException("Crypto with ID " + id + " does not exist.");
+        Crypto crypto = cryptoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Crypto with ID " + id + " not found"));
+        if (!crypto.getTransactions().isEmpty()) {
+            throw new RuntimeException("Cannot delete crypto with existing transactions");
         }
-        cryptoRepository.deleteById(id);
+        cryptoRepository.delete(crypto);
     }
 }

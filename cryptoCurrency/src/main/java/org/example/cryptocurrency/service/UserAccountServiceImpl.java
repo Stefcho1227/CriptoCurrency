@@ -6,11 +6,12 @@ import org.example.cryptocurrency.service.contracts.UserAccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 @Service
 public class UserAccountServiceImpl implements UserAccountService {
     private final UserAccountRepository userAccountRepository;
-    private static final double STARTING_PRICE = 10000.0;
+    private static final BigDecimal STARTING_PRICE = new BigDecimal(10000);
     @Autowired
     UserAccountServiceImpl(UserAccountRepository userAccountRepository){
         this.userAccountRepository = userAccountRepository;
@@ -19,7 +20,7 @@ public class UserAccountServiceImpl implements UserAccountService {
     @Override
     public UserAccount findUser(Integer id) {
         return userAccountRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with id=" + id));
+                .orElseThrow(() -> new RuntimeException("User not found with id =" + id));
     }
 
     @Override
@@ -34,10 +35,13 @@ public class UserAccountServiceImpl implements UserAccountService {
     }
 
     @Override
-    public UserAccount updateUserBalance(Integer userId, double newBalance) {
+    public UserAccount updateUserBalance(Integer userId, BigDecimal  newBalance) {
+        if (newBalance.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Balance cannot be negative");
+        }
         UserAccount existingAccount = userAccountRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found with id=" + userId));
+                .orElseThrow(() -> new RuntimeException("User not found with id =" + userId));
         existingAccount.setBalance(newBalance);
-        return null;
+        return userAccountRepository.save(existingAccount);
     }
 }

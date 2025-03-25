@@ -25,3 +25,17 @@ CREATE TABLE transaction (
                              CONSTRAINT fk_crypto
                                  FOREIGN KEY (crypto_id) REFERENCES crypto(id) ON DELETE CASCADE
 );
+create table user_holdings
+(
+    id        int auto_increment
+        primary key,
+    user_id   int                               not null,
+    crypto_id int                               not null,
+    quantity  decimal(15, 8) default 0.00000000 not null,
+    constraint fk_user_holdings_crypto
+        foreign key (crypto_id) references crypto (id)
+            on delete cascade,
+    constraint fk_user_holdings_user_account
+        foreign key (user_id) references user_account (id)
+            on delete cascade
+);

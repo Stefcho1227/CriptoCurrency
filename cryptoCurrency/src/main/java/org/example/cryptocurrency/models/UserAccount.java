@@ -2,6 +2,7 @@ package org.example.cryptocurrency.models;
 
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,9 +15,11 @@ public class UserAccount {
     @Column(name = "id")
     private Integer userId;
     @Column(name = "balance")
-    private double balance;
+    private BigDecimal balance;
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Transaction> transactions = new ArrayList<>();
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<UserHoldings> holdings = new ArrayList<>();
     public UserAccount() {
     }
 
@@ -27,10 +30,10 @@ public class UserAccount {
         this.userId = userId;
     }
 
-    public double getBalance() {
+    public BigDecimal  getBalance() {
         return balance;
     }
-    public void setBalance(double balance) {
+    public void setBalance(BigDecimal  balance) {
         this.balance = balance;
     }
     public List<Transaction> getTransactions() {
@@ -38,5 +41,13 @@ public class UserAccount {
     }
     public void setTransactions(List<Transaction> transactions) {
         this.transactions = transactions;
+    }
+
+    public List<UserHoldings> getHoldings() {
+        return holdings;
+    }
+
+    public void setHoldings(List<UserHoldings> holdings) {
+        this.holdings = holdings;
     }
 }
