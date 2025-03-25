@@ -17,8 +17,6 @@ public class UserAccount {
     private double balance;
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Transaction> transactions = new ArrayList<>();
-
-
     public UserAccount() {
     }
 
