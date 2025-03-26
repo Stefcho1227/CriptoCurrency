@@ -1,37 +1,22 @@
 package org.example.cryptocurrency.models;
 
-import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 
-@Entity
-@Table(name = "user_holdings")
 public class UserHoldings {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private Long id;
-
-    @ManyToOne
-    @JoinColumn(name = "user_id")
+    private Integer id;
     private UserAccount user;
-
-    @ManyToOne
-    @JoinColumn(name = "crypto_id")
     private Crypto crypto;
-
-    @Column(name = "quantity")
     private BigDecimal quantity;
 
     public UserHoldings() {
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

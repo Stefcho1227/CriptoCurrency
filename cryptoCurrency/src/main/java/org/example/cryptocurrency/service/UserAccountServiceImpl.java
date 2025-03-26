@@ -1,7 +1,7 @@
 package org.example.cryptocurrency.service;
 
 import org.example.cryptocurrency.models.UserAccount;
-import org.example.cryptocurrency.repository.UserAccountRepository;
+import org.example.cryptocurrency.repository.contracts.UserAccountRepository;
 import org.example.cryptocurrency.service.contracts.UserAccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,10 +17,12 @@ public class UserAccountServiceImpl implements UserAccountService {
         this.userAccountRepository = userAccountRepository;
     }
 
-    @Override
     public UserAccount findUser(Integer id) {
-        return userAccountRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with id =" + id));
+        UserAccount user = userAccountRepository.findById(id);
+        if (user == null) {
+            throw new RuntimeException("User not found with id=" + id);
+        }
+        return user;
     }
 
     @Override
@@ -35,12 +37,14 @@ public class UserAccountServiceImpl implements UserAccountService {
     }
 
     @Override
-    public UserAccount updateUserBalance(Integer userId, BigDecimal  newBalance) {
+    public UserAccount updateUserBalance(Integer userId, BigDecimal newBalance) {
         if (newBalance.compareTo(BigDecimal.ZERO) < 0) {
             throw new IllegalArgumentException("Balance cannot be negative");
         }
-        UserAccount existingAccount = userAccountRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found with id =" + userId));
+        UserAccount existingAccount = userAccountRepository.findById(userId);
+        if (existingAccount == null) {
+            throw new RuntimeException("User not found with id=" + userId);
+        }
         existingAccount.setBalance(newBalance);
         return userAccountRepository.save(existingAccount);
     }

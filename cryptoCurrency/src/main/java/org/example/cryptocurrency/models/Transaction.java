@@ -1,36 +1,27 @@
 package org.example.cryptocurrency.models;
 
-import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "transaction")
+
 public class Transaction {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "transaction_id")
+
     private Integer transactionId;
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
+
     private UserAccount user;
 
-    @ManyToOne
-    @JoinColumn(name = "crypto_id", nullable = false)
+
     private Crypto crypto;
 
-    @Column(name = "quantity")
+
     private BigDecimal quantity;
 
-    @Column(name = "transaction_price")
     private BigDecimal  transactionPrice;
 
-    @Column(name = "transaction_type")
     private String transactionType;
 
-    @Column(name = "transaction_time", updatable = false)
     private LocalDateTime transactionTime;
 
     public Transaction() {

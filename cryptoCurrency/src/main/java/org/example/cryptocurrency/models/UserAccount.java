@@ -1,26 +1,27 @@
 package org.example.cryptocurrency.models;
 
-import jakarta.persistence.*;
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-@Entity
-@Table(name = "user_account")
+
 public class UserAccount {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
+
     private Integer userId;
-    @Column(name = "balance")
     private BigDecimal balance;
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private String username;
     private List<Transaction> transactions = new ArrayList<>();
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<UserHoldings> holdings = new ArrayList<>();
     public UserAccount() {
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public Integer getUserId() {

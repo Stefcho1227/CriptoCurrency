@@ -4,10 +4,10 @@ import org.example.cryptocurrency.models.Crypto;
 import org.example.cryptocurrency.models.Transaction;
 import org.example.cryptocurrency.models.UserAccount;
 import org.example.cryptocurrency.models.UserHoldings;
-import org.example.cryptocurrency.repository.CryptoRepository;
-import org.example.cryptocurrency.repository.TransactionRepository;
-import org.example.cryptocurrency.repository.UserAccountRepository;
-import org.example.cryptocurrency.repository.UserHoldingRepository;
+import org.example.cryptocurrency.repository.contracts.CryptoRepository;
+import org.example.cryptocurrency.repository.contracts.TransactionRepository;
+import org.example.cryptocurrency.repository.contracts.UserAccountRepository;
+import org.example.cryptocurrency.repository.contracts.UserHoldingRepository;
 import org.example.cryptocurrency.service.contracts.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -47,28 +47,30 @@ public class TransactionServiceImpl implements TransactionService {
         if (quantity.compareTo(BigDecimal.ZERO) <= 0 || price.compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("Quantity and price must be positive");
         }
-        UserAccount user = userRepo.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
-        Crypto crypto = cryptoRepo.findById(cryptoId).orElseThrow(() -> new RuntimeException("Crypto not found"));
+        UserAccount user = userRepo.findById(userId);
+        if(user == null){
+            throw new RuntimeException("User not found");
+        }
+        Crypto crypto = cryptoRepo.findById(cryptoId);
+        if(crypto == null){
+            throw new RuntimeException("Crypto not found");
+        }
         BigDecimal  total = quantity.multiply(price);
         if(user.getBalance().compareTo(total) < 0){
             throw new RuntimeException("Insufficient balance to buy");
         }
         user.setBalance(user.getBalance().subtract(total));
         userRepo.save(user);
-        UserHoldings holding = userHoldingRepo
-                .findByUserIdAndCryptoId(userId, cryptoId)
-                .orElseGet(() -> {
-                    UserHoldings newHolding = new UserHoldings();
-                    newHolding.setUser(user);
-                    newHolding.setCrypto(crypto);
-                    newHolding.setQuantity(BigDecimal.ZERO);
-                    user.getHoldings().add(newHolding);
-                    crypto.getHoldings().add(newHolding);
-                    return newHolding;
-                });
+        UserHoldings holding = userHoldingRepo.findByUserIdAndCryptoId(userId, cryptoId);
+        if(holding == null){
+            holding = new UserHoldings();
+            holding.setUser(user);
+            holding.setCrypto(crypto);
+            holding.setQuantity(BigDecimal.ZERO);
+            user.getHoldings().add(holding);
+        }
         holding.setQuantity(holding.getQuantity().add(quantity));
         userHoldingRepo.save(holding);
-
         Transaction transaction = new Transaction();
         transaction.setUser(user);
         transaction.setCrypto(crypto);
@@ -84,48 +86,49 @@ public class TransactionServiceImpl implements TransactionService {
         if (quantity.compareTo(BigDecimal.ZERO) <= 0 || price.compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("Quantity and price must be positive");
         }
-        UserAccount user = userRepo.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found with id = " + userId));
-
-        Crypto crypto = cryptoRepo.findById(cryptoId)
-                .orElseThrow(() -> new RuntimeException("Crypto not found with id = " + cryptoId));
-
-        UserHoldings holding = userHoldingRepo
-                .findByUserIdAndCryptoId(userId, cryptoId)
-                .orElseThrow(() -> new RuntimeException("No holdings of this crypto to sell"));
-
+        UserAccount user = userRepo.findById(userId);
+        if (user == null) {
+            throw new RuntimeException("User not found with id=" + userId);
+        }
+        Crypto crypto = cryptoRepo.findById(cryptoId);
+        if (crypto == null) {
+            throw new RuntimeException("Crypto not found with id=" + cryptoId);
+        }
+        UserHoldings holding = userHoldingRepo.findByUserIdAndCryptoId(userId, cryptoId);
+        if (holding == null) {
+            throw new RuntimeException("No holdings of this crypto to sell");
+        }
         if (holding.getQuantity().compareTo(quantity) < 0) {
             throw new RuntimeException(
-                    "Not enough holdings to sell. You have "
-                            + holding.getQuantity() + " units, tried to sell " + quantity);
+                    "Not enough holdings to sell. You have " + holding.getQuantity() + " units, tried to sell " + quantity);
         }
-
         BigDecimal updatedQty = holding.getQuantity().subtract(quantity);
         holding.setQuantity(updatedQty);
         if (updatedQty.compareTo(BigDecimal.ZERO) == 0) {
             user.getHoldings().remove(holding);
-            crypto.getHoldings().remove(holding);
-            userHoldingRepo.delete(holding);
+            userHoldingRepo.delete(holding.getId());
         } else {
             userHoldingRepo.save(holding);
         }
         BigDecimal proceeds = quantity.multiply(price);
         user.setBalance(user.getBalance().add(proceeds));
         userRepo.save(user);
-
-        Transaction transaction = new Transaction();
-        transaction.setUser(user);
-        transaction.setCrypto(crypto);
-        transaction.setQuantity(quantity);
-        transaction.setTransactionPrice(price);
-        transaction.setTransactionType("SELL");
-        transaction.setTransactionTime(LocalDateTime.now());
-        transactionRepo.save(transaction);
+        Transaction tx = new Transaction();
+        tx.setUser(user);
+        tx.setCrypto(crypto);
+        tx.setQuantity(quantity);
+        tx.setTransactionPrice(price);
+        tx.setTransactionType("SELL");
+        tx.setTransactionTime(LocalDateTime.now());
+        transactionRepo.save(tx);
     }
 
     @Override
     public void resetUserBalance(Integer userId) {
-        UserAccount user = userRepo.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        UserAccount user = userRepo.findById(userId);
+        if (user == null) {
+            throw new RuntimeException("User not found for reset");
+        }
         user.setBalance(BigDecimal.valueOf(10000.00));
         userRepo.save(user);
     }
