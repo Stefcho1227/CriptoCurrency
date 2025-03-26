@@ -92,7 +92,6 @@ public class CryptoRepositoryImpl implements CryptoRepository {
                 e.printStackTrace();
             }
         } else {
-            // UPDATE
             String updateSql = "UPDATE crypto SET symbol=?, name=?, current_price=? WHERE id=?";
             try (Connection conn = dataSource.getConnection();
                  PreparedStatement ps = conn.prepareStatement(updateSql)) {

@@ -6,8 +6,6 @@ import java.util.List;
 
 
 public class UserAccount {
-
-
     private Integer userId;
     private BigDecimal balance;
     private String username;
