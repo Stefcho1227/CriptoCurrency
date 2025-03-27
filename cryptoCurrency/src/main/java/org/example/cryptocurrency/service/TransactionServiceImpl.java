@@ -24,7 +24,7 @@ public class TransactionServiceImpl implements TransactionService {
     private final CryptoRepository cryptoRepo;
     private final UserAccountRepository userRepo;
     private final UserHoldingRepository userHoldingRepo;
-    private KrakenWebSocketService krakenWebSocketService;
+    private final KrakenWebSocketService krakenWebSocketService;
     private static final BigDecimal STARTING_PRICE = new BigDecimal(10000);
 
     @Autowired
