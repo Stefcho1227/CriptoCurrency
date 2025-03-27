@@ -1,7 +1,11 @@
 package org.example.cryptocurrency.repository;
 
+import org.example.cryptocurrency.models.Transaction;
 import org.example.cryptocurrency.models.UserAccount;
+import org.example.cryptocurrency.models.UserHoldings;
+import org.example.cryptocurrency.repository.contracts.TransactionRepository;
 import org.example.cryptocurrency.repository.contracts.UserAccountRepository;
+import org.example.cryptocurrency.repository.contracts.UserHoldingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -14,13 +18,18 @@ import java.util.List;
 @Repository
 public class UserAccountRepositoryImpl implements UserAccountRepository {
     private final DataSource dataSource;
+    private final TransactionRepository transactionRepository;
+    private final UserHoldingRepository userHoldingRepository;
     @Autowired
-    public UserAccountRepositoryImpl(DataSource dataSource) {
+    public UserAccountRepositoryImpl(DataSource dataSource, TransactionRepository transactionRepository,
+                                     UserHoldingRepository userHoldingRepository) {
         this.dataSource = dataSource;
+        this.transactionRepository = transactionRepository;
+        this.userHoldingRepository = userHoldingRepository;
     }
     @Override
     public UserAccount findById(Integer userId) {
-        String sql = "SELECT id, balance FROM user_account WHERE id = ?";
+        String sql = "SELECT id, balance, username FROM user_account WHERE id = ?";
         try(Connection connection = dataSource.getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(sql)){
             preparedStatement.setInt(1, userId);
@@ -29,6 +38,7 @@ public class UserAccountRepositoryImpl implements UserAccountRepository {
                     UserAccount userAccount = new UserAccount();
                     userAccount.setUserId(resultSet.getInt("id"));
                     userAccount.setBalance(resultSet.getBigDecimal("balance"));
+                    userAccount.setUsername(resultSet.getString("username"));
                     return userAccount;
                 }
             }
@@ -41,7 +51,7 @@ public class UserAccountRepositoryImpl implements UserAccountRepository {
     @Override
     public List<UserAccount> findAll() {
         List<UserAccount> result = new ArrayList<>();
-        String sql = "SELECT id, balance FROM user_account";
+        String sql = "SELECT id, balance, username FROM user_account";
         try (Connection conn = dataSource.getConnection();
              Statement statement = conn.createStatement();
              ResultSet resultSet = statement.executeQuery(sql)) {
@@ -49,6 +59,13 @@ public class UserAccountRepositoryImpl implements UserAccountRepository {
                 UserAccount userAccount = new UserAccount();
                 userAccount.setUserId(resultSet.getInt("id"));
                 userAccount.setBalance(resultSet.getBigDecimal("balance"));
+                userAccount.setUsername(resultSet.getString("username"));
+                List<Transaction> transactions = transactionRepository
+                        .findByUserIdOrderByTransactionTimeDesc(userAccount.getUserId());
+                userAccount.setTransactions(transactions);
+                List<UserHoldings> holdings = userHoldingRepository.findByUserId(userAccount.getUserId());
+                userAccount.setHoldings(holdings);
+
                 result.add(userAccount);
             }
         } catch (SQLException e) {
@@ -60,12 +77,12 @@ public class UserAccountRepositoryImpl implements UserAccountRepository {
     @Override
     public UserAccount save(UserAccount user) {
         if (user.getUserId() == null) {
-            String insertSql = "INSERT INTO user_account (balance) VALUES (?)";
+            String insertSql = "INSERT INTO user_account (balance, username) VALUES (?, ?)";
             try (Connection conn = dataSource.getConnection();
                  PreparedStatement ps = conn.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS)) {
                 ps.setBigDecimal(1, user.getBalance() != null ? user.getBalance() : BigDecimal.ZERO);
+                ps.setString(2, user.getUsername() != null ? user.getUsername() : "anonymous");
                 ps.executeUpdate();
-
                 try (ResultSet keys = ps.getGeneratedKeys()) {
                     if (keys.next()) {
                         user.setUserId(keys.getInt(1));

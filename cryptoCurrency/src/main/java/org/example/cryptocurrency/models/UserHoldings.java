@@ -1,11 +1,15 @@
 package org.example.cryptocurrency.models;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.math.BigDecimal;
 
 public class UserHoldings {
     private Integer id;
+    @JsonIgnore
     private UserAccount user;
+    @JsonIgnore
     private Crypto crypto;
     private BigDecimal quantity;
 

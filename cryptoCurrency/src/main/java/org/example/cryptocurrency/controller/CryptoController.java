@@ -35,7 +35,7 @@ public class CryptoController {
     public Crypto getCryptoById(@PathVariable Integer id) {
         return cryptoService.getById(id);
     }
-    @GetMapping("/{symbol}")
+    @GetMapping("/symbol/{symbol}")
     public Crypto getCryptoBySymbol(@PathVariable String symbol) {
         return cryptoService.getBySymbol(symbol);
     }

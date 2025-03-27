@@ -8,7 +8,7 @@ import java.util.List;
 public interface TransactionService {
     List<Transaction> getAllTransactions();
     List<Transaction> getUserTransactions(Integer userId);
-    void buyCrypto(Integer userId, Integer cryptoId, BigDecimal quantity, BigDecimal  price);
-    void sellCrypto(Integer userId, Integer cryptoId, BigDecimal  quantity, BigDecimal  price);
+    void buyCrypto(Integer userId, Integer cryptoId, BigDecimal quantity);
+    void sellCrypto(Integer userId, Integer cryptoId, BigDecimal  quantity);
     void resetUserBalance(Integer userId);
 }

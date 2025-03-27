@@ -10,10 +10,13 @@ import org.example.cryptocurrency.repository.contracts.UserAccountRepository;
 import org.example.cryptocurrency.repository.contracts.UserHoldingRepository;
 import org.example.cryptocurrency.service.contracts.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 @Service
 public class TransactionServiceImpl implements TransactionService {
@@ -21,6 +24,8 @@ public class TransactionServiceImpl implements TransactionService {
     private final CryptoRepository cryptoRepo;
     private final UserAccountRepository userRepo;
     private final UserHoldingRepository userHoldingRepo;
+    private static final BigDecimal STARTING_PRICE = new BigDecimal(10000);
+
     @Autowired
     TransactionServiceImpl(TransactionRepository transactionRepo,
                            CryptoRepository cryptoRepo,
@@ -43,21 +48,22 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public void buyCrypto(Integer userId, Integer cryptoId, BigDecimal  quantity, BigDecimal price) {
-        if (quantity.compareTo(BigDecimal.ZERO) <= 0 || price.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Quantity and price must be positive");
+    public void buyCrypto(Integer userId, Integer cryptoId, BigDecimal  quantity) {
+        if (quantity.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Quantity  must be positive");
         }
         UserAccount user = userRepo.findById(userId);
         if(user == null){
-            throw new RuntimeException("User not found");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User not found");
         }
         Crypto crypto = cryptoRepo.findById(cryptoId);
         if(crypto == null){
-            throw new RuntimeException("Crypto not found");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Crypto not found");
         }
+        BigDecimal price = crypto.getCurrentPrice();
         BigDecimal  total = quantity.multiply(price);
         if(user.getBalance().compareTo(total) < 0){
-            throw new RuntimeException("Insufficient balance to buy");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Insufficient balance to buy");
         }
         user.setBalance(user.getBalance().subtract(total));
         userRepo.save(user);
@@ -82,24 +88,25 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public void sellCrypto(Integer userId, Integer cryptoId, BigDecimal  quantity, BigDecimal  price) {
-        if (quantity.compareTo(BigDecimal.ZERO) <= 0 || price.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Quantity and price must be positive");
+    public void sellCrypto(Integer userId, Integer cryptoId, BigDecimal  quantity) {
+        if (quantity.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Quantity must be positive");
         }
         UserAccount user = userRepo.findById(userId);
         if (user == null) {
-            throw new RuntimeException("User not found with id=" + userId);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User not found with id=" + userId);
         }
         Crypto crypto = cryptoRepo.findById(cryptoId);
         if (crypto == null) {
-            throw new RuntimeException("Crypto not found with id=" + cryptoId);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Crypto not found with id=" + cryptoId);
         }
+        BigDecimal price = crypto.getCurrentPrice();
         UserHoldings holding = userHoldingRepo.findByUserIdAndCryptoId(userId, cryptoId);
         if (holding == null) {
-            throw new RuntimeException("No holdings of this crypto to sell");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No holdings of this crypto to sell");
         }
         if (holding.getQuantity().compareTo(quantity) < 0) {
-            throw new RuntimeException(
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "Not enough holdings to sell. You have " + holding.getQuantity() + " units, tried to sell " + quantity);
         }
         BigDecimal updatedQty = holding.getQuantity().subtract(quantity);
@@ -127,9 +134,14 @@ public class TransactionServiceImpl implements TransactionService {
     public void resetUserBalance(Integer userId) {
         UserAccount user = userRepo.findById(userId);
         if (user == null) {
-            throw new RuntimeException("User not found for reset");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User not found for reset");
         }
-        user.setBalance(BigDecimal.valueOf(10000.00));
+        user.setBalance(STARTING_PRICE);
         userRepo.save(user);
+        List<UserHoldings> holdings = userHoldingRepo.findByUserId(userId);
+        for (UserHoldings h : holdings) {
+            userHoldingRepo.delete(h.getId());
+        }
+        user.setHoldings(new ArrayList<>());
     }
 }

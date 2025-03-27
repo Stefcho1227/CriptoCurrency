@@ -1,5 +1,7 @@
 package org.example.cryptocurrency.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;

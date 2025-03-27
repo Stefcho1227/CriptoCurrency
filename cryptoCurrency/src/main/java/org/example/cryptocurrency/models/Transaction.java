@@ -1,6 +1,8 @@
 package org.example.cryptocurrency.models;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -9,19 +11,13 @@ public class Transaction {
 
 
     private Integer transactionId;
-
+    @JsonIgnore
     private UserAccount user;
-
-
+    @JsonIgnore
     private Crypto crypto;
-
-
     private BigDecimal quantity;
-
     private BigDecimal  transactionPrice;
-
     private String transactionType;
-
     private LocalDateTime transactionTime;
 
     public Transaction() {
