@@ -2,33 +2,57 @@ package org.example.cryptocurrency.service;
 import jakarta.annotation.PostConstruct;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
+
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
+import org.springframework.web.client.RestTemplate;
 
 @Service
 public class KrakenWebSocketService {
 
     private WebSocketClient webSocketClient;
     private final Map<String, String> cryptoPrices = new ConcurrentHashMap<>();
+    private List<String> pairs = new ArrayList<>();
 
-    private final String[] pairs = {
-            "XBT/USD", "ETH/USD", "XRP/USD", "LTC/USD", "BCH/USD",
-            "ADA/USD", "DOT/USD", "LINK/USD", "DOGE/USD", "SOL/USD",
-            "MATIC/USD", "UNI/USD", "ICP/USD", "AVAX/USD", "XLM/USD",
-            "ETC/USD", "ATOM/USD", "VET/USD", "TRX/USD", "EOS/USD"
-    };
+    private RestTemplate restTemplate;
+    @Autowired
+    public KrakenWebSocketService(RestTemplate restTemplate){
+        this.restTemplate = restTemplate;
+    }
 
     public Map<String, String> getCryptoPrices() {
         return cryptoPrices;
+    }
+    public Map<String, String> getTop20(){
+        return cryptoPrices.entrySet().stream().sorted((e1, e2) -> {
+            BigDecimal price1 = new BigDecimal(e1.getValue());
+            BigDecimal price2 = new BigDecimal(e2.getValue());
+            return price2.compareTo(price1);
+        })
+                .limit(20).collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (old, newVal) -> old,
+                        LinkedHashMap::new
+                ));
     }
 
     @PostConstruct
     public void start() {
         try {
+            this.pairs = fetchAllWsNamesFromKraken();
             webSocketClient = new WebSocketClient(new URI("wss://ws.kraken.com")) {
                 @Override
                 public void onOpen(ServerHandshake handshakedata) {
@@ -77,6 +101,31 @@ public class KrakenWebSocketService {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+    private List<String> fetchAllWsNamesFromKraken() {
+        String url = "https://api.kraken.com/0/public/AssetPairs";
+        ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
+        if (!response.getStatusCode().is2xxSuccessful()) {
+            throw new RuntimeException("Failed to fetch asset pairs from Kraken");
+        }
+
+        List<String> wsNames = new ArrayList<>();
+        try {
+            JSONObject json = new JSONObject(response.getBody());
+            JSONObject result = json.getJSONObject("result");
+            for (String key : result.keySet()) {
+                JSONObject pairObj = result.getJSONObject(key);
+                if (pairObj.has("wsname")) {
+                    String wsname = pairObj.getString("wsname");
+                    if(wsname.endsWith("/USD")){
+                        wsNames.add(wsname);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return wsNames;
     }
 }
 

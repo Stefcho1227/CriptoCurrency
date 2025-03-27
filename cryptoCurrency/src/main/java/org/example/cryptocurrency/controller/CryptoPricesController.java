@@ -5,10 +5,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@RestController
-@RequestMapping("/api/cryptos")
-public class CryptoPricesController {
+import java.util.Map;
 
+@RestController
+@RequestMapping("/api/kraken")
+public class CryptoPricesController {
     private final KrakenWebSocketService krakenWebSocketService;
 
     @Autowired
@@ -17,7 +18,11 @@ public class CryptoPricesController {
     }
 
     @GetMapping("/prices")
-    public ResponseEntity<?> getCryptoPrices() {
-        return ResponseEntity.ok(krakenWebSocketService.getCryptoPrices());
+    public Map<String, String> getCryptoPrices() {
+        return krakenWebSocketService.getCryptoPrices();
+    }
+    @GetMapping("/prices/top20")
+    public Map<String, String> getTop20Prices() {
+        return krakenWebSocketService.getTop20();
     }
 }
