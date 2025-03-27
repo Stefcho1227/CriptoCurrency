@@ -38,7 +38,7 @@ public class TransactionController {
     @PostMapping("/sell")
     public ResponseEntity<String> sellCrypto(@RequestBody @Valid TransactionRequestDto dto) {
         transactionService.sellCrypto(dto.getUserId(), dto.getCryptoId(), dto.getQuantity());
-        return ResponseEntity.ok("Sell transaction successful for user " + dto.getUserId());
+        return ResponseEntity.ok("Sell transaction successful for user " + userAccountService.findUser(dto.getUserId()).getUsername());
     }
     @PostMapping("/reset")
     public ResponseEntity<String> resetUserBalance(@RequestParam Integer userId) {
