@@ -24,17 +24,20 @@ public class TransactionServiceImpl implements TransactionService {
     private final CryptoRepository cryptoRepo;
     private final UserAccountRepository userRepo;
     private final UserHoldingRepository userHoldingRepo;
+    private KrakenWebSocketService krakenWebSocketService;
     private static final BigDecimal STARTING_PRICE = new BigDecimal(10000);
 
     @Autowired
     TransactionServiceImpl(TransactionRepository transactionRepo,
                            CryptoRepository cryptoRepo,
                            UserAccountRepository userRepo,
-                           UserHoldingRepository userHoldingRepo){
+                           UserHoldingRepository userHoldingRepo,
+                           KrakenWebSocketService krakenWebSocketService){
         this.transactionRepo = transactionRepo;
         this.cryptoRepo = cryptoRepo;
         this.userRepo = userRepo;
         this.userHoldingRepo = userHoldingRepo;
+        this.krakenWebSocketService = krakenWebSocketService;
     }
 
     @Override
@@ -52,6 +55,7 @@ public class TransactionServiceImpl implements TransactionService {
         if (quantity.compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("Quantity  must be positive");
         }
+        krakenWebSocketService.updateCryptoPrices();
         UserAccount user = userRepo.findById(userId);
         if(user == null){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User not found");
@@ -92,6 +96,7 @@ public class TransactionServiceImpl implements TransactionService {
         if (quantity.compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("Quantity must be positive");
         }
+        krakenWebSocketService.updateCryptoPrices();
         UserAccount user = userRepo.findById(userId);
         if (user == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User not found with id=" + userId);

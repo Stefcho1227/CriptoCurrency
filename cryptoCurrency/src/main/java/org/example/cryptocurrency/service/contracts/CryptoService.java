@@ -5,9 +5,11 @@ import org.example.cryptocurrency.models.UserAccount;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 public interface CryptoService {
     List<Crypto> getAll();
+    Map<String, String> getTop20();
     Crypto getById(Integer id);
     Crypto getBySymbol(String symbol);
     Crypto create(Crypto crypto);

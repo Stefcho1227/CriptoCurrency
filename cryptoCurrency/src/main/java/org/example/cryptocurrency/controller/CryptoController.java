@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import org.example.cryptocurrency.dtos.CryptoInDto;
 import org.example.cryptocurrency.mapper.CryptoMapper;
 import org.example.cryptocurrency.models.Crypto;
+import org.example.cryptocurrency.service.KrakenWebSocketService;
 import org.example.cryptocurrency.service.contracts.CryptoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -11,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/cryptos")
@@ -28,6 +30,10 @@ public class CryptoController {
     @GetMapping
     public List<Crypto> getAllCryptos() {
         return cryptoService.getAll();
+    }
+    @GetMapping("/top20")
+    public Map<String, String> getTop20Prices() {
+        return cryptoService.getTop20();
     }
 
     @GetMapping("/{id}")

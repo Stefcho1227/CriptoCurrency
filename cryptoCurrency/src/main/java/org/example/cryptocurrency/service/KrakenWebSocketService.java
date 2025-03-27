@@ -1,5 +1,7 @@
 package org.example.cryptocurrency.service;
 import jakarta.annotation.PostConstruct;
+import org.example.cryptocurrency.models.Crypto;
+import org.example.cryptocurrency.repository.contracts.CryptoRepository;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,13 +29,32 @@ public class KrakenWebSocketService {
     private List<String> pairs = new ArrayList<>();
 
     private RestTemplate restTemplate;
+    private final CryptoRepository cryptoRepository;
     @Autowired
-    public KrakenWebSocketService(RestTemplate restTemplate){
+    public KrakenWebSocketService(RestTemplate restTemplate, CryptoRepository cryptoRepository){
         this.restTemplate = restTemplate;
+        this.cryptoRepository = cryptoRepository;
     }
 
     public Map<String, String> getCryptoPrices() {
         return cryptoPrices;
+    }
+    void updateCryptoPrices(){
+        Map<String, String> prices = getCryptoPrices();
+        for (Map.Entry<String, String> entry : prices.entrySet()){
+            String pair = entry.getKey();
+            BigDecimal currentPrice = new BigDecimal(entry.getValue());
+            Crypto crypto = cryptoRepository.findBySymbol(pair);
+            if (crypto == null) {
+                crypto = new Crypto();
+                crypto.setSymbol(pair);
+                crypto.setName(pair);
+                crypto.setCurrentPrice(currentPrice);
+            } else {
+                crypto.setCurrentPrice(currentPrice);
+            }
+            cryptoRepository.save(crypto);
+        }
     }
     public Map<String, String> getTop20(){
         return cryptoPrices.entrySet().stream().sorted((e1, e2) -> {

@@ -10,20 +10,31 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
+
 @Service
 public class CryptoServiceImpl implements CryptoService {
     private final CryptoRepository cryptoRepository;
     private final TransactionRepository transactionRepository;
+    private final KrakenWebSocketService krakenWebSocketService;
+
     @Autowired
-    CryptoServiceImpl(CryptoRepository cryptoRepository, TransactionRepository transactionRepository){
+    CryptoServiceImpl(CryptoRepository cryptoRepository, TransactionRepository transactionRepository,
+                      KrakenWebSocketService krakenWebSocketService
+){
         this.cryptoRepository = cryptoRepository;
         this.transactionRepository = transactionRepository;
+        this.krakenWebSocketService = krakenWebSocketService;
     }
     @Override
     public List<Crypto> getAll() {
+        krakenWebSocketService.updateCryptoPrices();
         return cryptoRepository.findAll();
     }
-
+    @Override
+    public Map<String, String> getTop20() {
+        return krakenWebSocketService.getTop20();
+    }
     @Override
     public Crypto getById(Integer id) {
         Crypto c = cryptoRepository.findById(id);
