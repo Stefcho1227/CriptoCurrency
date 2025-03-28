@@ -16,6 +16,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/cryptos")
+@CrossOrigin(origins = "http://localhost:5173")
 public class CryptoController {
 
     private final CryptoService cryptoService;
