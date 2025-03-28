@@ -20,6 +20,9 @@ public class RegisterDto {
     @NotBlank(message = "Confirm password is required")
     private String confirmPassword;
 
+    public RegisterDto() {
+    }
+
     // Getters and Setters
     public String getUsername() {
         return username;

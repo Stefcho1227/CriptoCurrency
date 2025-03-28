@@ -45,7 +45,6 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(bindingResult.getAllErrors());
         }
-
         try {
             UserAccount user = authenticationHelper.throwIfWrongAuthentication(
                     loginDto.getUsername(), loginDto.getPassword());

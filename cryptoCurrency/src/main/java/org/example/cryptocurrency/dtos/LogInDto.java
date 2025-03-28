@@ -11,7 +11,9 @@ public class LogInDto {
     @NotBlank(message = "Password is required")
     private String password;
 
-    // Getters and Setters
+    public LogInDto() {
+    }
+
     public String getUsername() {
         return username;
     }
