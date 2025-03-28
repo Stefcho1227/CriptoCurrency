@@ -49,6 +49,30 @@ public class UserAccountRepositoryImpl implements UserAccountRepository {
     }
 
     @Override
+    public UserAccount findByUsername(String username) {
+        String sql = "SELECT id, username, balance, email, password FROM user_account WHERE username = ?";
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, username);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    UserAccount userAccount = new UserAccount();
+                    userAccount.setUserId(rs.getInt("id"));
+                    userAccount.setUsername(rs.getString("username"));
+                    userAccount.setBalance(rs.getBigDecimal("balance"));
+                    userAccount.setEmail(rs.getString("email"));
+                    userAccount.setPassword(rs.getString("password"));
+                    return userAccount;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
+    @Override
     public List<UserAccount> findAll() {
         List<UserAccount> result = new ArrayList<>();
         String sql = "SELECT id, balance, username FROM user_account";

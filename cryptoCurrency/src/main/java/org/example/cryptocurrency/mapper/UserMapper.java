@@ -11,6 +11,8 @@ public class UserMapper {
     public UserAccount fromDto(UserInDto userInDto){
         UserAccount userAccount = new UserAccount();
         userAccount.setUsername(userInDto.getUserName());
+        userAccount.setPassword(userInDto.getPassword());
+        userAccount.setEmail(userInDto.getEmail());
         return userAccount;
     }
 }
