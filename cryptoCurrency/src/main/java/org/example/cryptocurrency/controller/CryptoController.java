@@ -28,21 +28,26 @@ public class CryptoController {
     }
 
     @GetMapping
-    public List<Crypto> getAllCryptos() {
-        return cryptoService.getAll();
+    public ResponseEntity<List<Crypto>> getAllCryptos() {
+        List<Crypto> cryptos = cryptoService.getAll();
+        return ResponseEntity.ok(cryptos);
     }
     @GetMapping("/top20")
-    public Map<String, String> getTop20Prices() {
-        return cryptoService.getTop20();
+    public ResponseEntity<Map<String, String>> getTop20Prices() {
+        Map<String, String> top20Prices = cryptoService.getTop20();
+        return ResponseEntity.ok(top20Prices);
     }
 
     @GetMapping("/{id}")
-    public Crypto getCryptoById(@PathVariable Integer id) {
-        return cryptoService.getById(id);
+    public ResponseEntity<Crypto> getCryptoById(@PathVariable Integer id) {
+        Crypto crypto = cryptoService.getById(id);
+        return ResponseEntity.ok(crypto);
     }
+
     @GetMapping("/symbol/{symbol}")
-    public Crypto getCryptoBySymbol(@PathVariable String symbol) {
-        return cryptoService.getBySymbol(symbol);
+    public ResponseEntity<Crypto> getCryptoBySymbol(@PathVariable String symbol) {
+        Crypto crypto = cryptoService.getBySymbol(symbol);
+        return ResponseEntity.ok(crypto);
     }
 
     @PostMapping
@@ -57,6 +62,7 @@ public class CryptoController {
         Crypto updated = cryptoService.update(symbol, cryptoInDto.getName(), cryptoInDto.getCurrentPrice());
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(updated);
     }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteCrypto(@PathVariable Integer id) {
         cryptoService.deleteCrypto(id);

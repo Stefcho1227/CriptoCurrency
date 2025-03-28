@@ -75,7 +75,7 @@ public class UserAccountRepositoryImpl implements UserAccountRepository {
     @Override
     public List<UserAccount> findAll() {
         List<UserAccount> result = new ArrayList<>();
-        String sql = "SELECT id, balance, username FROM user_account";
+        String sql = "SELECT id, username, balance, email, password FROM user_account";
         try (Connection conn = dataSource.getConnection();
              Statement statement = conn.createStatement();
              ResultSet resultSet = statement.executeQuery(sql)) {
@@ -84,6 +84,8 @@ public class UserAccountRepositoryImpl implements UserAccountRepository {
                 userAccount.setUserId(resultSet.getInt("id"));
                 userAccount.setBalance(resultSet.getBigDecimal("balance"));
                 userAccount.setUsername(resultSet.getString("username"));
+                userAccount.setEmail(resultSet.getString("email"));
+                userAccount.setPassword(resultSet.getString("password"));
                 List<Transaction> transactions = transactionRepository
                         .findByUserIdOrderByTransactionTimeDesc(userAccount.getUserId());
                 userAccount.setTransactions(transactions);
@@ -101,11 +103,13 @@ public class UserAccountRepositoryImpl implements UserAccountRepository {
     @Override
     public UserAccount save(UserAccount user) {
         if (user.getUserId() == null) {
-            String insertSql = "INSERT INTO user_account (balance, username) VALUES (?, ?)";
+            String insertSql = "INSERT INTO user_account (balance, username, email, password) VALUES (?, ?, ?, ?)";
             try (Connection conn = dataSource.getConnection();
                  PreparedStatement ps = conn.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS)) {
-                ps.setBigDecimal(1, user.getBalance() != null ? user.getBalance() : BigDecimal.ZERO);
-                ps.setString(2, user.getUsername() != null ? user.getUsername() : "anonymous");
+                ps.setBigDecimal(1, user.getBalance());
+                ps.setString(2, user.getUsername());
+                ps.setString(3, user.getEmail());
+                ps.setString(4, user.getPassword());
                 ps.executeUpdate();
                 try (ResultSet keys = ps.getGeneratedKeys()) {
                     if (keys.next()) {

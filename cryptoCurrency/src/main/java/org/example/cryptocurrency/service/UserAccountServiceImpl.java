@@ -26,6 +26,15 @@ public class UserAccountServiceImpl implements UserAccountService {
     }
 
     @Override
+    public UserAccount findByUsername(String username) {
+        UserAccount user = userAccountRepository.findByUsername(username);
+        if (user == null) {
+            throw new RuntimeException("User not found with username =" + username);
+        }
+        return user;
+    }
+
+    @Override
     public List<UserAccount> findAllUsers() {
         return userAccountRepository.findAll();
     }

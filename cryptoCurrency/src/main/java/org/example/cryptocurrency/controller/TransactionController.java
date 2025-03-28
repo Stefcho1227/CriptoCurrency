@@ -23,12 +23,14 @@ public class TransactionController {
         this.userAccountService = userAccountService;
     }
     @GetMapping
-    public List<Transaction> getAllTransactions() {
-        return transactionService.getAllTransactions();
+    public ResponseEntity<List<Transaction>> getAllTransactions() {
+        List<Transaction> transactions = transactionService.getAllTransactions();
+        return ResponseEntity.ok(transactions);
     }
     @GetMapping("/user/{userId}")
-    public List<Transaction> getUserTransactions(@PathVariable Integer userId) {
-        return transactionService.getUserTransactions(userId);
+    public ResponseEntity<List<Transaction>> getUserTransactions(@PathVariable Integer userId) {
+        List<Transaction> transactions = transactionService.getUserTransactions(userId);
+        return ResponseEntity.ok(transactions);
     }
     @PostMapping("/buy")
     public ResponseEntity<String> buyCrypto(@RequestBody @Valid TransactionRequestDto dto) {

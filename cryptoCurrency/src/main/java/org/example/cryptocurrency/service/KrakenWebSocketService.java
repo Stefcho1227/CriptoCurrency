@@ -5,6 +5,9 @@ import org.example.cryptocurrency.repository.contracts.CryptoRepository;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -125,7 +128,11 @@ public class KrakenWebSocketService {
     }
     private List<String> fetchAllWsNamesFromKraken() {
         String url = "https://api.kraken.com/0/public/AssetPairs";
-        ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) " +
+                "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.84 Safari/537.36");
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
         if (!response.getStatusCode().is2xxSuccessful()) {
             throw new RuntimeException("Failed to fetch asset pairs from Kraken");
         }

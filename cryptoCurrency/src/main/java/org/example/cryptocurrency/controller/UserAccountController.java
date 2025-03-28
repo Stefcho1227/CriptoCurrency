@@ -24,12 +24,14 @@ public class UserAccountController {
         this.userMapper = userMapper;
     }
     @GetMapping
-    public List<UserAccount> getAllUsers() {
-        return userAccountService.findAllUsers();
+    public ResponseEntity<List<UserAccount>> getAllUsers() {
+        List<UserAccount> userAccounts = userAccountService.findAllUsers();
+        return ResponseEntity.ok(userAccounts);
     }
     @GetMapping("/{id}")
-    public UserAccount getUser(@PathVariable Integer id) {
-        return userAccountService.findUser(id);
+    public ResponseEntity<UserAccount> getUser(@PathVariable Integer id) {
+        UserAccount userAccount = userAccountService.findUser(id);
+        return ResponseEntity.ok(userAccount);
     }
     @PostMapping
     public ResponseEntity<UserAccount> createUser(@RequestBody @Valid UserInDto userInDto) {
