@@ -29,7 +29,7 @@ public class UserAccountRepositoryImpl implements UserAccountRepository {
     }
     @Override
     public UserAccount findById(Integer userId) {
-        String sql = "SELECT id, balance, username FROM user_account WHERE id = ?";
+        String sql = "SELECT id, username, balance, email, password FROM user_account WHERE id = ?";
         try(Connection connection = dataSource.getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(sql)){
             preparedStatement.setInt(1, userId);
@@ -39,6 +39,8 @@ public class UserAccountRepositoryImpl implements UserAccountRepository {
                     userAccount.setUserId(resultSet.getInt("id"));
                     userAccount.setBalance(resultSet.getBigDecimal("balance"));
                     userAccount.setUsername(resultSet.getString("username"));
+                    userAccount.setEmail(resultSet.getString("email"));
+                    userAccount.setPassword(resultSet.getString("password"));
                     return userAccount;
                 }
             }

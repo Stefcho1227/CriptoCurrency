@@ -13,7 +13,7 @@ public class Transaction {
     private Integer transactionId;
     @JsonIgnore
     private UserAccount user;
-    @JsonIgnore
+
     private Crypto crypto;
     private BigDecimal quantity;
     private BigDecimal  transactionPrice;

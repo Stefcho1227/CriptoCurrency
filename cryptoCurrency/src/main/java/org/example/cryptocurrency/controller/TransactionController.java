@@ -14,6 +14,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/transactions")
+@CrossOrigin(origins = "http://localhost:5173")
 public class TransactionController {
     private final TransactionService transactionService;
     private final UserAccountService userAccountService;
@@ -42,8 +43,8 @@ public class TransactionController {
         transactionService.sellCrypto(dto.getUserId(), dto.getCryptoId(), dto.getQuantity());
         return ResponseEntity.ok("Sell transaction successful for user " + userAccountService.findUser(dto.getUserId()).getUsername());
     }
-    @PostMapping("/reset")
-    public ResponseEntity<String> resetUserBalance(@RequestParam Integer userId) {
+    @PostMapping("/reset/{userId}")
+    public ResponseEntity<String> resetUserBalance(@PathVariable Integer userId) {
         transactionService.resetUserBalance(userId);
         return ResponseEntity.ok("User " + userId + " balance reset to $10,000.");
     }

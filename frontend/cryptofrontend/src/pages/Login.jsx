@@ -9,12 +9,29 @@ function Login() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setError('');
         try {
-            const response = await fetch('/api/auth/login', { username, password });
-            localStorage.setItem('currentUser', JSON.stringify(response.data));
-            navigate('/account');
+            const response = await fetch('http://localhost:8080/api/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password })
+            });
+
+            if (!response.ok) {
+                const errMsg = await response.text();
+                throw new Error(errMsg || 'Login failed');
+            }
+
+            const data = await response.json();
+
+            localStorage.setItem('currentUser', JSON.stringify(data));
+
+            navigate('/');
+
         } catch (err) {
-            setError(err.response?.data || "Login failed");
+            setError(err.message || 'Login failed');
         }
     };
 

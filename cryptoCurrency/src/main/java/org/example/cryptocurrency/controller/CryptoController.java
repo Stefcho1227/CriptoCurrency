@@ -45,8 +45,8 @@ public class CryptoController {
         return ResponseEntity.ok(crypto);
     }
 
-    @GetMapping("/symbol/{symbol}")
-    public ResponseEntity<Crypto> getCryptoBySymbol(@PathVariable String symbol) {
+    @GetMapping("/symbol")
+    public ResponseEntity<Crypto> getCryptoBySymbol(@RequestParam("symbol") String symbol) {
         Crypto crypto = cryptoService.getBySymbol(symbol);
         return ResponseEntity.ok(crypto);
     }
