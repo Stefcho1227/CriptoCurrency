@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router';
-// import WaveBackground from '../components/WaveBackground'; // If you have a wave
+import { PulseLoader } from 'react-spinners';
+import WaveBackground from './WaveBackground';
 
 function TransactionsPage() {
     const [transactions, setTransactions] = useState([]);
     const [cryptoMap, setCryptoMap] = useState({});
     const [loading, setLoading] = useState(true);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [filterType, setFilterType] = useState('ALL');
     const navigate = useNavigate();
 
     const currentUser = JSON.parse(localStorage.getItem('currentUser'));
@@ -44,28 +47,55 @@ function TransactionsPage() {
     useEffect(() => {
         fetchTransactions(currentUser.userId);
         fetchCryptoMapping();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentUser.userId]);
 
     const handleBack = () => {
         navigate(-1);
     };
 
+    const filteredTransactions = transactions.filter((tx) => {
+        if (!tx) return false;
+
+        // Just read the name directly off the transaction's crypto field
+        const cryptoName = String(tx.crypto?.name ?? '').toLowerCase();
+        const transactionType = String(tx.transactionType ?? '').toLowerCase();
+        const safeSearchTerm = String(searchTerm ?? '').toLowerCase();
+
+        const matchesSearch =
+            cryptoName.includes(safeSearchTerm) ||
+            transactionType.includes(safeSearchTerm);
+
+        // filterType can still be used in the same manner
+        const matchesType = filterType === 'ALL' || tx.transactionType === filterType;
+
+        return matchesSearch && matchesType;
+    });
+
+
     return (
         <div style={styles.page}>
-            {/* Optionally add a wave background here */}
-            {/* <WaveBackground /> */}
+            {/* Animated Background Elements */}
+            <div style={styles.particles}>
+                {[...Array(15)].map((_, i) => (
+                    <div key={i} style={styles.particle}></div>
+                ))}
+            </div>
 
-            {/* Navbar */}
+            <WaveBackground />
+
+            {/* Glassmorphism Navbar */}
             <nav style={styles.navbar}>
                 <div style={styles.navLeft}>
                     <div style={styles.brand} onClick={() => navigate('/')}>
-                        CryptoPro
+                        <span style={styles.brandGradient}>Crypto</span>Pro
                     </div>
                 </div>
                 <div style={styles.navRight}>
-                    <button style={styles.navButton} onClick={() => navigate('/')}>
-                        Dashboard
+                    <button
+                        style={styles.navButton}
+                        onClick={() => navigate('/')}
+                    >
+                        <i className="fas fa-chart-line"></i> Dashboard
                     </button>
                     <button
                         style={styles.navButton}
@@ -74,58 +104,132 @@ function TransactionsPage() {
                             navigate('/login');
                         }}
                     >
-                        Logout
+                        <i className="fas fa-sign-out-alt"></i> Logout
                     </button>
                 </div>
             </nav>
 
             <div style={styles.container}>
                 <div style={styles.card}>
-                    <button onClick={handleBack} style={styles.backBtn}>Back</button>
-                    <h1 style={styles.title}>Transaction History</h1>
+                    <button onClick={handleBack} style={styles.backBtn}>
+                        <i className="fas fa-arrow-left"></i> Back
+                    </button>
+                    <h1 style={styles.title}>
+                        <i className="fas fa-exchange-alt"></i> Transaction History
+                    </h1>
+
+                    {/* Search and Filter Controls */}
+                    <div style={styles.controls}>
+                        <div style={styles.searchContainer}>
+                            <div style={styles.searchInner}>
+                                <i className="fas fa-search"></i>
+                                <input
+                                    type="text"
+                                    placeholder="Search transactions..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    style={styles.searchInput}
+                                />
+                            </div>
+                        </div>
+                        <div style={styles.filterGroup}>
+                            <label style={styles.filterLabel}>Filter by:</label>
+                            <select
+                                value={filterType}
+                                onChange={(e) => setFilterType(e.target.value)}
+                                style={styles.filterSelect}
+                                className="custom-select" // Add this
+                            >
+                                <option value="ALL" style={styles.selectOption}>All Types</option>
+                                <option value="BUY" style={styles.selectOption}>Buy</option>
+                                <option value="SELL" style={styles.selectOption}>Sell</option>
+                            </select>
+                        </div>
+                    </div>
 
                     {loading ? (
-                        <p style={{ color: '#fff' }}>Loading transactions...</p>
-                    ) : transactions.length > 0 ? (
-                        <table style={styles.table}>
-                            <thead>
-                            <tr>
-                                <th style={styles.th}>Date</th>
-                                <th style={styles.th}>Type</th>
-                                <th style={styles.th}>Amount</th>
-                                <th style={styles.th}>Name</th>
-                                <th style={styles.th}>Price</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {transactions.map(tx => {
-                                const cryptoId = tx.crypto && tx.crypto.id ? tx.crypto.id : null;
-                                const cryptoName = cryptoId && cryptoMap[cryptoId] ? cryptoMap[cryptoId] : 'N/A';
-                                const displayName = cryptoName.includes('/')
-                                    ? cryptoName.substring(0, cryptoName.indexOf('/'))
-                                    : cryptoName;
+                        <div style={styles.loadingContainer}>
+                            <PulseLoader color="#9F65FF" size={15}/>
+                            <p style={styles.loadingText}>Loading transactions...</p>
+                        </div>
+                    ) : filteredTransactions.length > 0 ? (
+                        <div style={styles.tableContainer}>
+                            <table style={styles.table}>
+                                <thead>
+                                <tr>
+                                    <th style={styles.th}>Date</th>
+                                    <th style={styles.th}>Type</th>
+                                    <th style={styles.th}>Crypto</th>
+                                    <th style={styles.th}>Amount</th>
+                                    <th style={styles.th}>Price</th>
+                                    <th style={styles.th}>Total</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {filteredTransactions.map(tx => {
+                                    // again, read off of tx.crypto.name
+                                    const cryptoName = tx.crypto?.name || 'N/A';
+                                    const displayName = cryptoName.includes('/')
+                                        ? cryptoName.substring(0, cryptoName.indexOf('/'))
+                                        : cryptoName;
+                                    const totalValue = tx.quantity * tx.transactionPrice;
+                                    const isBuy = tx.transactionType === 'BUY';
 
-                                // Optional color highlight for BUY vs SELL
-                                const typeColor = tx.transactionType === 'BUY' ? '#4caf50' : '#e91e63';
-
-                                return (
-                                    <tr key={tx.transactionId} style={styles.tr}>
-                                        <td style={styles.td}>{new Date(tx.transactionTime).toLocaleString()}</td>
-                                        <td style={{ ...styles.td, color: typeColor, fontWeight: 'bold' }}>
-                                            {tx.transactionType ? tx.transactionType.toUpperCase() : 'UNKNOWN'}
-                                        </td>
-                                        <td style={styles.td}>{tx.quantity}</td>
-                                        <td style={styles.td}>{displayName}</td>
-                                        <td style={styles.td}>
-                                            {tx.transactionPrice ? `$${tx.transactionPrice.toFixed(2)}` : 'N/A'}
-                                        </td>
-                                    </tr>
-                                );
-                            })}
-                            </tbody>
-                        </table>
+                                    return (
+                                        <tr key={tx.transactionId} style={styles.tr}>
+                                            <td style={styles.td}>
+                                                {new Date(tx.transactionTime).toLocaleString()}
+                                            </td>
+                                            <td style={{
+                                                ...styles.td,
+                                                color: isBuy ? '#4CAF50' : '#F44336',
+                                                fontWeight: '600'
+                                            }}>
+                                                <div style={styles.typeBadge}>
+                                                    {isBuy ? (
+                                                        <i className="fas fa-arrow-up" style={{marginRight: '8px'}}></i>
+                                                    ) : (
+                                                        <i className="fas fa-arrow-down" style={{marginRight: '8px'}}></i>
+                                                    )}
+                                                    {tx.transactionType}
+                                                </div>
+                                            </td>
+                                            <td style={styles.td}>
+                                                <div style={styles.cryptoCell}>
+                                                    <div style={styles.cryptoIcon}>
+                                                        {displayName[0]}
+                                                    </div>
+                                                    {displayName}
+                                                </div>
+                                            </td>
+                                            <td style={styles.td}>{tx.quantity}</td>
+                                            <td style={styles.td}>
+                                                ${tx.transactionPrice?.toFixed(2) || '0.00'}
+                                            </td>
+                                            <td style={{
+                                                ...styles.td,
+                                                fontWeight: '600',
+                                                color: isBuy ? '#4CAF50' : '#F44336'
+                                            }}>
+                                                ${totalValue.toFixed(2)}
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                                </tbody>
+                            </table>
+                        </div>
                     ) : (
-                        <p style={{ color: '#fff' }}>No transactions found</p>
+                        <div style={styles.emptyState}>
+                            <i className="fas fa-exchange-alt" style={styles.emptyIcon}></i>
+                            <p style={styles.emptyText}>No transactions found</p>
+                            <button
+                                style={styles.browseButton}
+                                onClick={() => navigate('/')}
+                            >
+                                <i className="fas fa-coins"></i> Browse Cryptocurrencies
+                            </button>
+                        </div>
                     )}
                 </div>
             </div>
@@ -135,92 +239,279 @@ function TransactionsPage() {
 
 const styles = {
     page: {
-        position: 'relative',
         minHeight: '100vh',
-        background: 'linear-gradient(135deg, #2c2c2c 0%, #343434 100%)',
-        color: '#E5E5E5',
-        fontFamily: 'sans-serif',
-        overflow: 'hidden'
+        background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)',
+        color: '#fff',
+        fontFamily: "'Inter', sans-serif",
+        overflow: 'hidden',
+        position: 'relative',
+    },
+    particles: {
+        position: 'absolute',
+        width: '100%',
+        height: '100%',
+        pointerEvents: 'none',
+    },
+    particle: {
+        position: 'absolute',
+        background: 'rgba(255,255,255,0.1)',
+        borderRadius: '50%',
+        animation: 'float 20s infinite linear',
+        width: '8px',
+        height: '8px',
     },
     navbar: {
         display: 'flex',
-        alignItems: 'center',
         justifyContent: 'space-between',
-        padding: '10px 30px',
-        backgroundColor: '#121212',
-        borderBottom: '1px solid #333',
-        zIndex: 2
-    },
-    navLeft: {
-        display: 'flex',
-        alignItems: 'center'
+        alignItems: 'center',
+        padding: '1rem 5%',
+        background: 'rgba(255,255,255,0.05)',
+        backdropFilter: 'blur(10px)',
+        borderBottom: '1px solid rgba(255,255,255,0.1)',
+        position: 'sticky',
+        top: 0,
+        zIndex: 1000,
     },
     brand: {
-        fontSize: '1.3rem',
-        fontWeight: 'bold',
-        cursor: 'pointer'
+        fontSize: '1.8rem',
+        fontWeight: '700',
+        letterSpacing: '1px',
+        cursor: 'pointer',
     },
-    navRight: {
-        display: 'flex',
-        gap: '10px'
+    brandGradient: {
+        background: 'linear-gradient(45deg, #9F65FF, #7D49FF)',
+        WebkitBackgroundClip: 'text',
+        WebkitTextFillColor: 'transparent',
     },
     navButton: {
-        backgroundColor: 'transparent',
-        color: '#E5E5E5',
-        border: '1px solid #444',
-        borderRadius: '4px',
-        padding: '8px 12px',
+        background: 'rgba(255,255,255,0.1)',
+        border: 'none',
+        borderRadius: '8px',
+        padding: '0.8rem 1.5rem',
+        color: '#fff',
+        marginLeft: '1rem',
         cursor: 'pointer',
-        transition: 'background 0.2s ease',
-        fontSize: '0.9rem'
+        transition: 'all 0.3s ease',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '0.5rem',
+        fontSize: '0.9rem',
+        '&:hover': {
+            background: 'rgba(255,255,255,0.2)',
+        },
     },
     container: {
-        position: 'relative',
-        maxWidth: '1000px',
-        margin: '140px auto 0 auto',
-        padding: '40px 20px',
-        zIndex: 2
+        maxWidth: '1200px',
+        margin: '4rem auto',
+        padding: '0 2rem',
     },
     card: {
-        backgroundColor: '#3a3a3a',
-        borderRadius: '6px',
-        padding: '30px',
-        boxShadow: '0 2px 10px rgba(0,0,0,0.4)'
+        background: 'rgba(255,255,255,0.05)',
+        borderRadius: '20px',
+        backdropFilter: 'blur(10px)',
+        padding: '2rem',
+        boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
+        border: '1px solid rgba(255,255,255,0.1)',
     },
     backBtn: {
-        backgroundColor: '#2A2A2A',
-        color: '#E5E5E5',
-        border: '1px solid #444',
-        borderRadius: '4px',
-        padding: '8px 12px',
+        background: 'rgba(255,255,255,0.1)',
+        border: 'none',
+        borderRadius: '8px',
+        padding: '0.8rem 1.5rem',
+        color: '#fff',
+        marginBottom: '2rem',
         cursor: 'pointer',
-        marginBottom: '20px'
+        display: 'flex',
+        alignItems: 'center',
+        gap: '0.5rem',
+        transition: 'all 0.3s ease',
+        '&:hover': {
+            background: 'rgba(255,255,255,0.2)',
+        },
     },
     title: {
-        marginBottom: '20px'
+        textAlign: 'center',
+        marginBottom: '2rem',
+        fontSize: '2rem',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '1rem',
+    },
+    controls: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: '2rem',
+        flexWrap: 'wrap',
+        gap: '1rem',
+    },
+    searchContainer: {
+        flex: 1,
+        minWidth: '300px',
+    },
+    searchInner: {
+        position: 'relative',
+        display: 'flex',
+        alignItems: 'center',
+        '& i': {
+            position: 'absolute',
+            left: '1rem',
+            color: 'rgba(255,255,255,0.6)',
+        }
+    },
+    searchInput: {
+        width: '100%',
+        padding: '1rem 1rem 1rem 3rem',
+        borderRadius: '12px',
+        border: 'none',
+        background: 'rgba(255,255,255,0.1)',
+        color: '#fff',
+        fontSize: '1rem',
+        transition: 'all 0.3s ease',
+        '&:focus': {
+            outline: '2px solid #7D49FF',
+        }
+    },
+    filterGroup: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: '1rem',
+    },
+    filterLabel: {
+        color: 'rgba(255,255,255,0.7)',
+        fontSize: '0.9rem',
+    },
+    filterSelect: {
+        background: 'rgba(255,255,255,0.1)',
+        border: 'none',
+        borderRadius: '8px',
+        padding: '0.8rem 1rem',
+        color: '#fff', // Ensure text is white
+        fontSize: '0.9rem',
+        cursor: 'pointer',
+        '&:focus': {
+            outline: '2px solid #7D49FF',
+        },
+        // Add this to style the options in the dropdown
+        '& option': {
+            background: '#1a1a2e', // Dark background for options
+            color: '#fff', // White text for options
+        }
+    },
+    selectOption: {
+        backgroundColor: '#1a1a2e',
+        color: '#fff',
+        padding: '0.5rem',
+    }
+    ,
+    tableContainer: {
+        overflowX: 'auto',
+        borderRadius: '16px',
+        border: '1px solid rgba(255,255,255,0.1)',
     },
     table: {
         width: '100%',
         borderCollapse: 'collapse',
-        backgroundColor: '#2A2A2A',
-        borderRadius: '6px',
-        overflow: 'hidden'
+        minWidth: '800px',
     },
     th: {
-        padding: '12px',
-        borderBottom: '1px solid #444',
+        padding: '1.2rem',
+        background: 'rgba(159,101,255,0.1)',
         textAlign: 'left',
-        backgroundColor: '#2A2A2A',
-        color: '#E5E5E5',
-        fontWeight: 'bold'
+        fontWeight: '600',
+        fontSize: '0.9rem',
+        color: 'rgba(255,255,255,0.9)',
     },
     tr: {
-        borderBottom: '1px solid #444'
+        borderBottom: '1px solid rgba(255,255,255,0.05)',
+        transition: 'all 0.2s ease',
+        '&:hover': {
+            background: 'rgba(255,255,255,0.03)',
+        }
     },
     td: {
-        padding: '12px',
-        color: '#E5E5E5'
-    }
+        padding: '1.2rem',
+        fontSize: '0.95rem',
+        color: 'rgba(255,255,255,0.8)',
+    },
+    typeBadge: {
+        display: 'flex',
+        alignItems: 'center',
+    },
+    cryptoCell: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: '1rem',
+    },
+    cryptoIcon: {
+        width: '36px',
+        height: '36px',
+        borderRadius: '50%',
+        background: 'linear-gradient(45deg, #7D49FF, #9F65FF)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontWeight: '600',
+    },
+    loadingContainer: {
+        padding: '2rem',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: '1rem',
+    },
+    loadingText: {
+        color: 'rgba(255,255,255,0.7)',
+    },
+    emptyState: {
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '3rem',
+        textAlign: 'center',
+    },
+    emptyIcon: {
+        fontSize: '3rem',
+        color: 'rgba(255,255,255,0.2)',
+        marginBottom: '1.5rem',
+    },
+    emptyText: {
+        color: 'rgba(255,255,255,0.7)',
+        fontSize: '1.2rem',
+        marginBottom: '2rem',
+    },
+    browseButton: {
+        background: 'linear-gradient(45deg, #7D49FF, #9F65FF)',
+        border: 'none',
+        borderRadius: '12px',
+        padding: '1rem 2rem',
+        color: '#fff',
+        cursor: 'pointer',
+        fontWeight: '600',
+        transition: 'transform 0.2s ease',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '0.8rem',
+        '&:hover': {
+            transform: 'translateY(-2px)',
+        }
+    },
 };
+
+// Add global animations
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes float {
+        0% { transform: translateY(0) translateX(0); opacity: 0; }
+        50% { transform: translateY(-100vh) translateX(100vw); opacity: 1; }
+        100% { transform: translateY(0) translateX(0); opacity: 0; }
+    }
+    
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
+`;
+document.head.appendChild(style);
 
 export default TransactionsPage;

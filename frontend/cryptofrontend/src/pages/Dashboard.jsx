@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import axios from 'axios';
 import { PulseLoader } from 'react-spinners';
+import WaveBackground from './WaveBackground';
 
 function Dashboard() {
     const [topCryptos, setTopCryptos] = useState({});
@@ -16,11 +17,6 @@ function Dashboard() {
         const stored = localStorage.getItem('currentUser');
         return stored ? JSON.parse(stored) : null;
     });
-
-    if (!currentUser) {
-        alert('Please log in to buy.');
-         navigate('/login')
-    }
 
     const fetchTop20 = async () => {
         try {
@@ -146,6 +142,9 @@ function Dashboard() {
                     <div key={i} style={styles.particle}></div>
                 ))}
             </div>
+
+            {/* Wave Background */}
+            <WaveBackground />
 
             {/* Enhanced Navbar */}
             <nav style={styles.navbar}>
@@ -277,6 +276,7 @@ const styles = {
         width: '100%',
         height: '100%',
         pointerEvents: 'none',
+        zIndex: 1,
     },
     particle: {
         position: 'absolute',
@@ -330,6 +330,8 @@ const styles = {
         maxWidth: '1200px',
         margin: '4rem auto',
         padding: '0 2rem',
+        position: 'relative',
+        zIndex: 2,
     },
     card: {
         background: 'rgba(255,255,255,0.05)',
@@ -338,6 +340,8 @@ const styles = {
         padding: '2rem',
         boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
         border: '1px solid rgba(255,255,255,0.1)',
+        position: 'relative',
+        zIndex: 2,
     },
     title: {
         textAlign: 'center',
@@ -496,4 +500,4 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
-export default Dashboard
+export default Dashboard;
