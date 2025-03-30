@@ -59,11 +59,11 @@ public class UserHoldingRepositoryImpl implements UserHoldingRepository {
     @Override
     public List<UserHoldings> findByUserId(Integer userId) {
         List<UserHoldings> list = new ArrayList<>();
-        String sql = "SELECT uh.id AS holding_id, uh.user_id, uh.crypto_id, uh.quantity, "
-                + "       c.name AS crypto_name, c.symbol AS crypto_symbol, c.current_price "
-                + "FROM user_holdings uh "
-                + "JOIN crypto c ON uh.crypto_id = c.id "
-                + "WHERE uh.user_id = ?";
+        String sql = "SELECT uh.id AS holding_id, uh.user_id, uh.crypto_id, uh.quantity, " +
+                "       c.name AS name, c.symbol AS crypto_symbol, c.current_price " +
+                "FROM user_holdings uh " +
+                "JOIN crypto c ON uh.crypto_id = c.id " +
+                "WHERE uh.user_id = ?";
         try (Connection conn = dataSource.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, userId);
@@ -80,7 +80,11 @@ public class UserHoldingRepositoryImpl implements UserHoldingRepository {
 
     @Override
     public UserHoldings findByUserIdAndCryptoId(Integer userId, Integer cryptoId) {
-        String sql = "SELECT id, user_id, crypto_id, quantity FROM user_holdings WHERE user_id = ? AND crypto_id = ?";
+        String sql = "SELECT uh.id AS holding_id, uh.user_id, uh.crypto_id, uh.quantity, " +
+                "       c.name AS name, c.symbol AS crypto_symbol, c.current_price " +
+                "FROM user_holdings uh " +
+                "JOIN crypto c ON uh.crypto_id = c.id " +
+                "WHERE uh.user_id = ? AND uh.crypto_id = ?";
         try (Connection conn = dataSource.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, userId);
@@ -144,18 +148,16 @@ public class UserHoldingRepositoryImpl implements UserHoldingRepository {
 
     private UserHoldings mapRowToUserHoldings(ResultSet rs) throws SQLException {
         UserHoldings uh = new UserHoldings();
-        uh.setId(rs.getInt("holding_id"));
-
+        uh.setId(rs.getInt("holding_id")); // using the alias
         UserAccount ua = new UserAccount();
         ua.setUserId(rs.getInt("user_id"));
         uh.setUser(ua);
 
         Crypto c = new Crypto();
         c.setId(rs.getInt("crypto_id"));
-        c.setName(rs.getString("crypto_name"));
-        c.setSymbol(rs.getString("crypto_symbol"));
+        c.setName(rs.getString("name"));              // now "name" exists
+        c.setSymbol(rs.getString("crypto_symbol"));     // note: symbol is aliased as crypto_symbol
         c.setCurrentPrice(rs.getBigDecimal("current_price"));
-
         uh.setCrypto(c);
         uh.setQuantity(rs.getBigDecimal("quantity"));
         return uh;

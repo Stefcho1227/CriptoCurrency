@@ -10,42 +10,35 @@ function safeSubstring(str) {
 
 function generatePageNumbers(currentPage, totalPages) {
     const pages = [];
-
     if (totalPages <= 5) {
         for (let i = 1; i <= totalPages; i++) {
             pages.push(i);
         }
         return pages;
     }
-
     pages.push(1);
-
     if (currentPage > 3) {
         pages.push('...');
     }
-
     const start = Math.max(2, currentPage - 1);
     const end = Math.min(totalPages - 1, currentPage + 1);
     for (let i = start; i <= end; i++) {
         pages.push(i);
     }
-
     if (currentPage < totalPages - 2) {
         pages.push('...');
     }
-
     pages.push(totalPages);
-
     return pages;
 }
 
 function BuyCrypto() {
     const [cryptos, setCryptos] = useState([]);
-
     const [loading, setLoading] = useState(true);
     const [selectedCrypto, setSelectedCrypto] = useState(null);
     const [quantity, setQuantity] = useState('');
     const [showModal, setShowModal] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
 
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 6;
@@ -58,9 +51,8 @@ function BuyCrypto() {
     });
     if (!currentUser) {
         alert('Please log in to buy.');
-        return;
+        return null;
     }
-
 
     const fetchCryptos = async () => {
         try {
@@ -80,68 +72,16 @@ function BuyCrypto() {
         fetchCryptos();
     }, []);
 
-    const handleCryptoClick = (crypto) => {
-        if (!currentUser) {
-            alert('Please log in to buy.');
-            return;
-        }
-        setSelectedCrypto(crypto);
-        setShowModal(true);
-    };
+    // Filter the cryptos based on search term (case-insensitive)
+    const filteredCryptos = cryptos.filter(crypto =>
+        crypto.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        crypto.symbol.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
-    const handleBuy = async () => {
-        if (!quantity || isNaN(quantity) || Number(quantity) <= 0) {
-            alert('Please enter a valid quantity');
-            return;
-        }
-        if (!currentUser) {
-            alert('User not found. Please log in.');
-            return;
-        }
-        try {
-            const payload = {
-                userId: currentUser.userId,
-                cryptoId: selectedCrypto.id,
-                quantity: Number(quantity)
-            };
-            const response = await fetch('http://localhost:8080/api/transactions/buy', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(errorText || 'Buy failed');
-            }
-
-            const updatedUserResponse = await axios.get(`http://localhost:8080/api/users/${currentUser.userId}`);
-            const updatedUser = updatedUserResponse.data;
-            setCurrentUser(updatedUser);
-            localStorage.setItem('currentUser', JSON.stringify(updatedUser));
-
-            alert('Purchase successful!');
-            setShowModal(false);
-            setQuantity('');
-        } catch (error) {
-            console.error('Error during purchase:', error);
-            alert(error.message);
-        }
-    };
-
-
-    const handleCancel = () => {
-        setShowModal(false);
-        setQuantity('');
-    };
-
-    const handleBack = () => {
-        navigate(-1);
-    };
-
-    const totalPages = Math.ceil(cryptos.length / itemsPerPage);
+    const totalPages = Math.ceil(filteredCryptos.length / itemsPerPage);
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentItems = cryptos.slice(indexOfFirstItem, indexOfLastItem);
+    const currentItems = filteredCryptos.slice(indexOfFirstItem, indexOfLastItem);
     const pageNumbers = generatePageNumbers(currentPage, totalPages);
 
     const handlePageChange = (page) => {
@@ -161,14 +101,71 @@ function BuyCrypto() {
         }
     };
 
-    if (loading) {
-        return <div>Loading cryptocurrencies...</div>;
-    }
+    const handleCryptoClick = (crypto) => {
+        setSelectedCrypto(crypto);
+        setShowModal(true);
+    };
+
+    const handleBuy = async () => {
+        if (!quantity || isNaN(quantity) || Number(quantity) <= 0) {
+            alert('Please enter a valid quantity');
+            return;
+        }
+        try {
+            const payload = {
+                userId: currentUser.userId,
+                cryptoId: selectedCrypto.id,
+                quantity: Number(quantity)
+            };
+            const response = await fetch('http://localhost:8080/api/transactions/buy', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(errorText || 'Buy failed');
+            }
+            const updatedUserResponse = await axios.get(`http://localhost:8080/api/users/${currentUser.userId}`);
+            const updatedUser = updatedUserResponse.data;
+            setCurrentUser(updatedUser);
+            localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+            alert('Purchase successful!');
+            setShowModal(false);
+            setQuantity('');
+        } catch (error) {
+            console.error('Error during purchase:', error);
+            alert(error.message);
+        }
+    };
+
+    const handleCancel = () => {
+        setShowModal(false);
+        setQuantity('');
+    };
+
+    const handleBack = () => {
+        navigate(-1);
+    };
 
     return (
         <div style={{ padding: '20px' }}>
             <h1>Buy Cryptocurrency</h1>
             <button onClick={handleBack} style={{ marginBottom: '20px' }}>Back</button>
+
+            {/* Search Bar */}
+            <div style={{ marginBottom: '20px' }}>
+                <input
+                    type="text"
+                    placeholder="Search by name or symbol..."
+                    value={searchTerm}
+                    onChange={(e) => {
+                        setSearchTerm(e.target.value);
+                        setCurrentPage(1);
+                    }}
+                    style={{ padding: '10px', width: '100%', boxSizing: 'border-box' }}
+                />
+            </div>
 
             {/* Grid display: 6 items per row */}
             <div style={{
@@ -242,7 +239,7 @@ function BuyCrypto() {
                         borderRadius: '5px',
                         width: '300px'
                     }}>
-                        <h2>Buy {selectedCrypto.name.substring(0, selectedCrypto.name.indexOf("/"))}</h2>
+                        <h2>Buy {safeSubstring(selectedCrypto.name)}</h2>
                         <div style={{ marginBottom: '10px' }}>
                             <label>Quantity: </label>
                             <input
@@ -253,7 +250,9 @@ function BuyCrypto() {
                             />
                         </div>
                         <div>
-                            <button onClick={handleBuy} style={{ marginRight: '10px' }}>Buy</button>
+                            <button onClick={handleBuy} style={{ marginRight: '10px' }}>
+                                Buy
+                            </button>
                             <button onClick={handleCancel}>Cancel</button>
                         </div>
                     </div>

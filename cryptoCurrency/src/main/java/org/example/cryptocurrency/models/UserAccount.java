@@ -29,7 +29,7 @@ public class UserAccount {
     public void setPassword(String password) {
         this.password = password;
     }
-    //@JsonIgnore
+
     private List<Transaction> transactions = new ArrayList<>();
     private List<UserHoldings> holdings = new ArrayList<>();
     public UserAccount() {
