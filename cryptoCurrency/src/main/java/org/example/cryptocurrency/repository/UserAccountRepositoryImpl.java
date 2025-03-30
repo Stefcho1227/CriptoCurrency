@@ -41,6 +41,11 @@ public class UserAccountRepositoryImpl implements UserAccountRepository {
                     userAccount.setUsername(resultSet.getString("username"));
                     userAccount.setEmail(resultSet.getString("email"));
                     userAccount.setPassword(resultSet.getString("password"));
+                    List<Transaction> transactions = transactionRepository
+                            .findByUserIdOrderByTransactionTimeDesc(userAccount.getUserId());
+                    userAccount.setTransactions(transactions);
+                    List<UserHoldings> holdings = userHoldingRepository.findByUserId(userAccount.getUserId());
+                    userAccount.setHoldings(holdings);
                     return userAccount;
                 }
             }
@@ -56,15 +61,21 @@ public class UserAccountRepositoryImpl implements UserAccountRepository {
         try (Connection conn = dataSource.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, username);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
+            try (ResultSet resultSet = ps.executeQuery()) {
+                if (resultSet.next()) {
                     UserAccount userAccount = new UserAccount();
-                    userAccount.setUserId(rs.getInt("id"));
-                    userAccount.setUsername(rs.getString("username"));
-                    userAccount.setBalance(rs.getBigDecimal("balance"));
-                    userAccount.setEmail(rs.getString("email"));
-                    userAccount.setPassword(rs.getString("password"));
+                    userAccount.setUserId(resultSet.getInt("id"));
+                    userAccount.setBalance(resultSet.getBigDecimal("balance"));
+                    userAccount.setUsername(resultSet.getString("username"));
+                    userAccount.setEmail(resultSet.getString("email"));
+                    userAccount.setPassword(resultSet.getString("password"));
+                    List<Transaction> transactions = transactionRepository
+                            .findByUserIdOrderByTransactionTimeDesc(userAccount.getUserId());
+                    userAccount.setTransactions(transactions);
+                    List<UserHoldings> holdings = userHoldingRepository.findByUserId(userAccount.getUserId());
+                    userAccount.setHoldings(holdings);
                     return userAccount;
+
                 }
             }
         } catch (SQLException e) {

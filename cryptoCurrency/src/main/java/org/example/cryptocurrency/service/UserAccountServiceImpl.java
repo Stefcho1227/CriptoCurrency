@@ -1,20 +1,26 @@
 package org.example.cryptocurrency.service;
 
 import org.example.cryptocurrency.models.UserAccount;
+import org.example.cryptocurrency.models.UserHoldings;
 import org.example.cryptocurrency.repository.contracts.UserAccountRepository;
+import org.example.cryptocurrency.repository.contracts.UserHoldingRepository;
 import org.example.cryptocurrency.service.contracts.UserAccountService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.util.List;
 @Service
 public class UserAccountServiceImpl implements UserAccountService {
     private final UserAccountRepository userAccountRepository;
+    private final UserHoldingRepository userHoldingRepository;
     private static final BigDecimal STARTING_PRICE = new BigDecimal(10000);
     @Autowired
-    UserAccountServiceImpl(UserAccountRepository userAccountRepository){
+    UserAccountServiceImpl(UserAccountRepository userAccountRepository, UserHoldingRepository userHoldingRepository){
         this.userAccountRepository = userAccountRepository;
+        this.userHoldingRepository = userHoldingRepository;
     }
 
     public UserAccount findUser(Integer id) {
@@ -56,5 +62,14 @@ public class UserAccountServiceImpl implements UserAccountService {
         }
         existingAccount.setBalance(newBalance);
         return userAccountRepository.save(existingAccount);
+    }
+
+    @Override
+    public List<UserHoldings> getHoldingsByUserId(Integer userId) {
+        List<UserHoldings> holdings = userHoldingRepository.findByUserId(userId);
+        if (holdings == null || holdings.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No holdings found for user id " + userId);
+        }
+        return holdings;
     }
 }

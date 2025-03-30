@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import org.example.cryptocurrency.dtos.UserInDto;
 import org.example.cryptocurrency.mapper.UserMapper;
 import org.example.cryptocurrency.models.UserAccount;
+import org.example.cryptocurrency.models.UserHoldings;
 import org.example.cryptocurrency.service.contracts.UserAccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,6 +29,11 @@ public class UserAccountController {
     public ResponseEntity<List<UserAccount>> getAllUsers() {
         List<UserAccount> userAccounts = userAccountService.findAllUsers();
         return ResponseEntity.ok(userAccounts);
+    }
+    @GetMapping("/{id}/holdings")
+    public ResponseEntity<List<UserHoldings>> getUserHoldings(@PathVariable Integer id) {
+        List<UserHoldings> holdings = userAccountService.getHoldingsByUserId(id);
+        return ResponseEntity.ok(holdings);
     }
     @GetMapping("/{id}")
     public ResponseEntity<UserAccount> getUser(@PathVariable Integer id) {

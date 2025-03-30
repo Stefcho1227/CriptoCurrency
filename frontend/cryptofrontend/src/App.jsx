@@ -8,6 +8,8 @@ import Register from "./pages/Register.jsx";
 import Account from "./pages/Account.jsx";
 import BuyCrypto from "./pages/BuyCrypto.jsx";
 import SellCrypto from "./pages/SellCrypto.jsx";
+import TransactionsPage from "./pages/TransactionsPage.jsx";
+import HoldingsPage from "./pages/HoldingsPage.jsx";
 const router = createBrowserRouter([{
   path:'/',
   element:<Dashboard/>
@@ -30,7 +32,13 @@ const router = createBrowserRouter([{
   }, {
     path: '/sell',
     element: <SellCrypto />
-  }])
+  },
+  {
+    path: '/transactions',
+    element: <TransactionsPage />},
+  {
+    path: '/holdings',
+    element: <HoldingsPage />}])
 function App() {
 
   return (
