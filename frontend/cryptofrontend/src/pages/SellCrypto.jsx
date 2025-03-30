@@ -2,13 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import axios from "axios";
 
-// Optional helper for trimming "/..." from crypto name
+// Helper to trim the string if it contains a '/'
 function safeSubstring(str) {
     if (!str) return '';
     const index = str.indexOf('/');
     return index !== -1 ? str.substring(0, index) : str;
 }
 
+// Helper to generate pagination numbers
 function generatePageNumbers(currentPage, totalPages) {
     const pages = [];
     if (totalPages <= 5) {
@@ -40,6 +41,7 @@ function SellCrypto() {
     const [quantity, setQuantity] = useState('');
     const [showModal, setShowModal] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
+    const [searchTerm, setSearchTerm] = useState('');
 
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 6;
@@ -50,8 +52,8 @@ function SellCrypto() {
         const stored = localStorage.getItem('currentUser');
         return stored ? JSON.parse(stored) : null;
     });
-
     if (!currentUser) {
+        alert('Please log in to sell.');
         return null;
     }
 
@@ -68,79 +70,20 @@ function SellCrypto() {
         }
     };
 
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     useEffect(() => {
         fetchCryptos();
     }, []);
 
-    const handleCryptoClick = (crypto) => {
-        setSelectedCrypto(crypto);
-        setShowModal(true);
-        setErrorMessage(''); // Clear any old errors
-    };
+    // Filter cryptos by search term (case-insensitive)
+    const filteredCryptos = cryptos.filter(crypto =>
+        crypto.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        crypto.symbol.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
-    const handleSell = async () => {
-        setErrorMessage('');
-        if (!quantity || isNaN(quantity) || Number(quantity) <= 0) {
-            setErrorMessage('Please enter a valid quantity');
-            return;
-        }
-        try {
-            const payload = {
-                userId: currentUser.userId,
-                cryptoId: selectedCrypto.id, // numeric ID
-                quantity: Number(quantity)
-            };
-            const response = await fetch('http://localhost:8080/api/transactions/sell', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-            if (!response.ok) {
-                const errorText = await response.text();
-                let humanMessage = errorText;
-                try {
-                    const parsedError = JSON.parse(errorText);
-                    if (parsedError.message) {
-                        humanMessage = parsedError.message;
-                    }
-                    // eslint-disable-next-line no-unused-vars
-                } catch (err) {
-                    // If parsing fails, fallback to raw text
-                }
-                throw new Error(humanMessage || 'Sell failed');
-            }
-
-            const updatedUserResponse = await axios.get(`http://localhost:8080/api/users/${currentUser.userId}`);
-            const updatedUser = updatedUserResponse.data;
-            localStorage.setItem('currentUser', JSON.stringify(updatedUser));
-
-            alert('Sell successful!');
-            setShowModal(false);
-            setQuantity('');
-            setErrorMessage('');
-        } catch (error) {
-            console.error('Error during sell:', error);
-            setErrorMessage(error.message);
-        }
-    };
-
-    // Cancel the modal
-    const handleCancel = () => {
-        setShowModal(false);
-        setQuantity('');
-        setErrorMessage('');
-    };
-
-    const handleBack = () => {
-        navigate(-1);
-    };
-
-    // Pagination
-    const totalPages = Math.ceil(cryptos.length / itemsPerPage);
+    const totalPages = Math.ceil(filteredCryptos.length / itemsPerPage);
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentItems = cryptos.slice(indexOfFirstItem, indexOfLastItem);
+    const currentItems = filteredCryptos.slice(indexOfFirstItem, indexOfLastItem);
     const pageNumbers = generatePageNumbers(currentPage, totalPages);
 
     const handlePageChange = (page) => {
@@ -160,14 +103,84 @@ function SellCrypto() {
         }
     };
 
-    if (loading) {
-        return <div>Loading cryptocurrency data...</div>;
-    }
+    const handleCryptoClick = (crypto) => {
+        setSelectedCrypto(crypto);
+        setShowModal(true);
+        setErrorMessage('');
+    };
+
+    const handleSell = async () => {
+        setErrorMessage('');
+        if (!quantity || isNaN(quantity) || Number(quantity) <= 0) {
+            setErrorMessage('Please enter a valid quantity');
+            return;
+        }
+        try {
+            const payload = {
+                userId: currentUser.userId,
+                cryptoId: selectedCrypto.id, // numeric ID from the crypto object
+                quantity: Number(quantity)
+            };
+            const response = await fetch('http://localhost:8080/api/transactions/sell', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            if (!response.ok) {
+                const errorText = await response.text();
+                let humanMessage = errorText;
+                try {
+                    const parsedError = JSON.parse(errorText);
+                    if (parsedError.message) {
+                        humanMessage = parsedError.message;
+                    }
+                } catch (err) {
+                    // fallback to raw text
+                }
+                throw new Error(humanMessage || 'Sell failed');
+            }
+
+            const updatedUserResponse = await axios.get(`http://localhost:8080/api/users/${currentUser.userId}`);
+            const updatedUser = updatedUserResponse.data;
+            localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+            alert('Sell successful!');
+            setShowModal(false);
+            setQuantity('');
+            setErrorMessage('');
+        } catch (error) {
+            console.error('Error during sell:', error);
+            setErrorMessage(error.message);
+        }
+    };
+
+    const handleCancel = () => {
+        setShowModal(false);
+        setQuantity('');
+        setErrorMessage('');
+    };
+
+    const handleBack = () => {
+        navigate(-1);
+    };
 
     return (
         <div style={{ padding: '20px' }}>
             <h1>Sell Cryptocurrency</h1>
             <button onClick={handleBack} style={{ marginBottom: '20px' }}>Back</button>
+
+            {/* Search Bar */}
+            <div style={{ marginBottom: '20px' }}>
+                <input
+                    type="text"
+                    placeholder="Search by name or symbol..."
+                    value={searchTerm}
+                    onChange={(e) => {
+                        setSearchTerm(e.target.value);
+                        setCurrentPage(1);
+                    }}
+                    style={{ padding: '10px', width: '100%', boxSizing: 'border-box' }}
+                />
+            </div>
 
             {/* Grid display: 6 items per row */}
             <div style={{
@@ -199,7 +212,7 @@ function SellCrypto() {
                     <button onClick={handlePrev} disabled={currentPage === 1} style={{ marginRight: '5px' }}>
                         &lt;
                     </button>
-                    {pageNumbers.map((page, index) => (
+                    {pageNumbers.map((page, index) =>
                         page === '...' ? (
                             <span key={index} style={{ margin: '0 5px' }}>...</span>
                         ) : (
@@ -214,7 +227,7 @@ function SellCrypto() {
                                 {page}
                             </button>
                         )
-                    ))}
+                    )}
                     <button onClick={handleNext} disabled={currentPage === totalPages}>
                         &gt;
                     </button>
@@ -239,17 +252,11 @@ function SellCrypto() {
                     }}>
                         <h2>Sell {safeSubstring(selectedCrypto.name)}</h2>
                         <p>Price: ${selectedCrypto.currentPrice}</p>
-
-                        {/* If there's an error, display it in normal text (no background) */}
                         {errorMessage && (
-                            <div style={{
-                                color: '#c62828',
-                                marginBottom: '10px'
-                            }}>
+                            <div style={{ color: '#c62828', marginBottom: '10px' }}>
                                 {errorMessage}
                             </div>
                         )}
-
                         <div style={{ marginBottom: '10px' }}>
                             <label>Quantity: </label>
                             <input
@@ -260,9 +267,7 @@ function SellCrypto() {
                             />
                         </div>
                         <div>
-                            <button onClick={handleSell} style={{ marginRight: '10px' }}>
-                                Sell
-                            </button>
+                            <button onClick={handleSell} style={{ marginRight: '10px' }}>Sell</button>
                             <button onClick={handleCancel}>Cancel</button>
                         </div>
                     </div>
