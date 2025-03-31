@@ -246,11 +246,13 @@ CREATE TABLE user_holdings (
 ![Screenshot 2025-03-31 161053](https://github.com/user-attachments/assets/90e00e6e-7835-4d29-bfe5-c177cfe9754a)
 
 **Sell page**
+
 ![Screenshot 2025-03-31 161109](https://github.com/user-attachments/assets/00373016-1fbc-4310-8a3c-7e5536748daf)
 
 
 
 **Sell crypto**
+
 ![Screenshot 2025-03-31 161119](https://github.com/user-attachments/assets/ae99d179-7553-4977-82e0-4f8b36f3b11d)
 
 **Video**
