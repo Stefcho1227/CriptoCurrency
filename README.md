@@ -218,38 +218,45 @@ CREATE TABLE user_holdings (
 ```
 ## SCREENSHOTS
 **Dashboard**
+
 ![Screenshot 2025-03-31 160838](https://github.com/user-attachments/assets/9e2c80bc-b703-419b-81e6-0d2042844076)
 ![Screenshot 2025-03-31 160857](https://github.com/user-attachments/assets/b863537a-1db8-49e2-8e5a-55ab422ddf93)
 
 **Login**
+
 ![Screenshot 2025-03-31 160914](https://github.com/user-attachments/assets/f2c5d4ad-33d3-4e23-9883-768c0f35519a)
 
 **Register**
+
 ![Screenshot 2025-03-31 160927](https://github.com/user-attachments/assets/96f95a96-5779-40f0-9b32-4161d0233015)
 
 **Dashboard after register**
+
 ![Screenshot 2025-03-31 160947](https://github.com/user-attachments/assets/4fe0e1e3-fa12-4a90-8fa6-8590893f88fd)
 
 **My account**
+
 ![Screenshot 2025-03-31 160955](https://github.com/user-attachments/assets/0f667024-e3f9-462c-ae6a-88dbac4f92f8)
 
 **Buy page**
+
 ![Screenshot 2025-03-31 161013](https://github.com/user-attachments/assets/5ea6b856-d29b-427b-9f44-aa739c51fbdf)
 
 **Buy crypto**
+
 ![Screenshot 2025-03-31 161024](https://github.com/user-attachments/assets/b7c138a2-da08-47e9-b0cb-546016783203)
 
 **Transactions**
+
 ![Screenshot 2025-03-31 161041](https://github.com/user-attachments/assets/cf7d314a-0a81-4239-b6d9-ce71cdb5408e)
 
 **Holdings**
+
 ![Screenshot 2025-03-31 161053](https://github.com/user-attachments/assets/90e00e6e-7835-4d29-bfe5-c177cfe9754a)
 
 **Sell page**
 
 ![Screenshot 2025-03-31 161109](https://github.com/user-attachments/assets/00373016-1fbc-4310-8a3c-7e5536748daf)
-
-
 
 **Sell crypto**
 
