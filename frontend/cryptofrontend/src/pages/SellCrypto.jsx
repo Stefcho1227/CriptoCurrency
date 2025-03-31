@@ -3,8 +3,7 @@ import { useNavigate } from 'react-router';
 import axios from 'axios';
 import { PulseLoader } from 'react-spinners';
 import WaveBackground from './WaveBackground';
-
-// Helper function to trim a string if it contains a '/'
+import styles from './css/SellCrypto.module.css';
 function safeSubstring(str) {
     if (!str) return '';
     const index = str.indexOf('/');
@@ -160,32 +159,36 @@ function SellCrypto() {
     };
 
     return (
-        <div style={styles.page}>
-            {/* Animated Particles Background */}
-            <div style={styles.particles}>
+        <div className={styles.page}>
+            {/* Particles Background */}
+            <div className={styles.particles}>
                 {[...Array(15)].map((_, i) => (
-                    <div key={i} style={styles.particle}></div>
+                    <div key={i} className={styles.particle}></div>
                 ))}
             </div>
 
+            {/* Wave Background */}
             <WaveBackground />
 
             {/* Glassmorphism Navbar */}
-            <nav style={styles.navbar}>
-                <div style={styles.navLeft}>
-                    <div style={styles.brand} onClick={() => navigate('/')}>
-                        <span style={styles.brandGradient}>Crypto</span>Pro
+            <nav className={styles.navbar}>
+                <div>
+                    <div
+                        className={styles.brand}
+                        onClick={() => navigate('/')}
+                    >
+                        <span className={styles.brandGradient}>Crypto</span>Pro
                     </div>
                 </div>
-                <div style={styles.navRight}>
+                <div className={styles.navRight}>
                     <button
-                        style={styles.navButton}
+                        className={styles.navButton}
                         onClick={() => navigate('/')}
                     >
                         <i className="fas fa-chart-line"></i> Dashboard
                     </button>
                     <button
-                        style={styles.navButton}
+                        className={styles.navButton}
                         onClick={() => {
                             localStorage.removeItem('currentUser');
                             navigate('/login');
@@ -196,18 +199,18 @@ function SellCrypto() {
                 </div>
             </nav>
 
-            <div style={styles.container}>
-                <div style={styles.card}>
-                    <button onClick={handleBack} style={styles.backBtn}>
+            <div className={styles.container}>
+                <div className={styles.card}>
+                    <button onClick={handleBack} className={styles.backBtn}>
                         <i className="fas fa-arrow-left"></i> Back
                     </button>
-                    <h1 style={styles.title}>
+                    <h1 className={styles.title}>
                         <i className="fas fa-cash-register"></i> Sell Cryptocurrency
                     </h1>
 
                     {/* Enhanced Search Bar */}
-                    <div style={styles.searchContainer}>
-                        <div style={styles.searchInner}>
+                    <div className={styles.searchContainer}>
+                        <div className={styles.searchInner}>
                             <i className="fas fa-search"></i>
                             <input
                                 type="text"
@@ -217,38 +220,44 @@ function SellCrypto() {
                                     setSearchTerm(e.target.value);
                                     setCurrentPage(1);
                                 }}
-                                style={styles.searchInput}
+                                className={styles.searchInput}
                             />
                         </div>
                     </div>
 
                     {loading ? (
-                        <div style={styles.loadingContainer}>
+                        <div className={styles.loadingContainer}>
                             <PulseLoader color="#9F65FF" size={15} />
-                            <p style={styles.loadingText}>Loading Cryptocurrencies...</p>
+                            <p className={styles.loadingText}>Loading Cryptocurrencies...</p>
                         </div>
                     ) : (
                         <>
                             {/* Crypto Grid */}
-                            <div style={styles.cryptoGrid}>
+                            <div className={styles.cryptoGrid}>
                                 {currentItems.map((crypto) => (
                                     <div
                                         key={crypto.id}
                                         onClick={() => handleCryptoClick(crypto)}
-                                        style={styles.cryptoCard}
+                                        className={styles.cryptoCard}
                                     >
-                                        <div style={styles.cryptoHeader}>
-                                            <div style={styles.cryptoIcon}>
+                                        <div className={styles.cryptoHeader}>
+                                            <div className={styles.cryptoIcon}>
                                                 {safeSubstring(crypto.symbol)[0]}
                                             </div>
                                             <div>
-                                                <h3 style={styles.cryptoName}>{safeSubstring(crypto.name)}</h3>
-                                                <p style={styles.cryptoSymbol}>{safeSubstring(crypto.symbol)}</p>
+                                                <h3 className={styles.cryptoName}>
+                                                    {safeSubstring(crypto.name)}
+                                                </h3>
+                                                <p className={styles.cryptoSymbol}>
+                                                    {safeSubstring(crypto.symbol)}
+                                                </p>
                                             </div>
                                         </div>
-                                        <div style={styles.priceContainer}>
-                                            <span style={styles.priceLabel}>Current Price</span>
-                                            <p style={styles.cryptoPrice}>${crypto.currentPrice}</p>
+                                        <div className={styles.priceContainer}>
+                                            <span className={styles.priceLabel}>Current Price</span>
+                                            <p className={styles.cryptoPrice}>
+                                                ${crypto.currentPrice}
+                                            </p>
                                         </div>
                                     </div>
                                 ))}
@@ -256,25 +265,26 @@ function SellCrypto() {
 
                             {/* Modern Pagination */}
                             {totalPages > 1 && (
-                                <div style={styles.pagination}>
+                                <div className={styles.pagination}>
                                     <button
                                         onClick={handlePrev}
                                         disabled={currentPage === 1}
-                                        style={styles.pageArrow}
+                                        className={styles.pageArrow}
                                     >
                                         <i className="fas fa-chevron-left"></i>
                                     </button>
                                     {pageNumbers.map((page, index) =>
                                         page === '...' ? (
-                                            <span key={index} style={styles.pageEllipsis}>...</span>
+                                            <span key={index} className={styles.pageEllipsis}>...</span>
                                         ) : (
                                             <button
                                                 key={page}
                                                 onClick={() => handlePageChange(page)}
-                                                style={{
-                                                    ...styles.pageNumber,
-                                                    ...(currentPage === page && styles.activePage)
-                                                }}
+                                                className={
+                                                    page === currentPage
+                                                        ? `${styles.pageNumber} ${styles.activePage}`
+                                                        : styles.pageNumber
+                                                }
                                             >
                                                 {page}
                                             </button>
@@ -283,7 +293,7 @@ function SellCrypto() {
                                     <button
                                         onClick={handleNext}
                                         disabled={currentPage === totalPages}
-                                        style={styles.pageArrow}
+                                        className={styles.pageArrow}
                                     >
                                         <i className="fas fa-chevron-right"></i>
                                     </button>
@@ -294,41 +304,42 @@ function SellCrypto() {
                 </div>
             </div>
 
-            {/* Enhanced Sell Modal */}
+            {/* Sell Modal */}
             {showModal && selectedCrypto && (
-                <div style={styles.modalOverlay}>
-                    <div style={styles.modal}>
-                        <h2 style={styles.modalTitle}>
-                            <i className="fas fa-money-bill-wave"></i> Sell {safeSubstring(selectedCrypto.name)}
+                <div className={styles.modalOverlay}>
+                    <div className={styles.modal}>
+                        <h2 className={styles.modalTitle}>
+                            <i className="fas fa-money-bill-wave"></i>
+                            Sell {safeSubstring(selectedCrypto.name)}
                         </h2>
-                        <div style={styles.modalContent}>
-                            <div style={styles.priceDisplay}>
+                        <div className={styles.modalContent}>
+                            <div className={styles.priceDisplay}>
                                 ${selectedCrypto.currentPrice} per coin
                             </div>
                             {errorMessage && (
-                                <div style={styles.errorMessage}>
+                                <div className={styles.errorMessage}>
                                     <i className="fas fa-exclamation-circle"></i> {errorMessage}
                                 </div>
                             )}
-                            <div style={styles.inputGroup}>
-                                <label style={styles.inputLabel}>Quantity:</label>
+                            <div className={styles.inputGroup}>
+                                <label className={styles.inputLabel}>Quantity:</label>
                                 <input
                                     type="number"
                                     value={quantity}
                                     onChange={(e) => setQuantity(e.target.value)}
                                     min="1"
                                     placeholder="Enter amount"
-                                    style={styles.modalInput}
+                                    className={styles.modalInput}
                                 />
                             </div>
-                            <div style={styles.totalPrice}>
+                            <div className={styles.totalPrice}>
                                 Total: ${(quantity * selectedCrypto.currentPrice).toFixed(2) || '0.00'}
                             </div>
-                            <div style={styles.modalActions}>
-                                <button onClick={handleSell} style={styles.confirmBtn}>
+                            <div className={styles.modalActions}>
+                                <button onClick={handleSell} className={styles.confirmBtn}>
                                     <i className="fas fa-check-circle"></i> Confirm Sale
                                 </button>
-                                <button onClick={handleCancel} style={styles.cancelBtn}>
+                                <button onClick={handleCancel} className={styles.cancelBtn}>
                                     <i className="fas fa-times-circle"></i> Cancel
                                 </button>
                             </div>
@@ -339,381 +350,5 @@ function SellCrypto() {
         </div>
     );
 }
-
-const styles = {
-    page: {
-        minHeight: '100vh',
-        background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)',
-        color: '#fff',
-        fontFamily: "'Inter', sans-serif",
-        overflow: 'hidden',
-        position: 'relative',
-    },
-    particles: {
-        position: 'absolute',
-        width: '100%',
-        height: '100%',
-        pointerEvents: 'none',
-    },
-    particle: {
-        position: 'absolute',
-        background: 'rgba(255,255,255,0.1)',
-        borderRadius: '50%',
-        animation: 'float 20s infinite linear',
-        width: '8px',
-        height: '8px',
-    },
-    navbar: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        padding: '1rem 5%',
-        background: 'rgba(255,255,255,0.05)',
-        backdropFilter: 'blur(10px)',
-        borderBottom: '1px solid rgba(255,255,255,0.1)',
-        position: 'sticky',
-        top: 0,
-        zIndex: 1000,
-    },
-    brand: {
-        fontSize: '1.8rem',
-        fontWeight: '700',
-        letterSpacing: '1px',
-        cursor: 'pointer',
-    },
-    brandGradient: {
-        background: 'linear-gradient(45deg, #9F65FF, #7D49FF)',
-        WebkitBackgroundClip: 'text',
-        WebkitTextFillColor: 'transparent',
-    },
-    navButton: {
-        background: 'rgba(255,255,255,0.1)',
-        border: 'none',
-        borderRadius: '8px',
-        padding: '0.8rem 1.5rem',
-        color: '#fff',
-        marginLeft: '1rem',
-        cursor: 'pointer',
-        transition: 'all 0.3s ease',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '0.5rem',
-        fontSize: '0.9rem',
-        '&:hover': {
-            background: 'rgba(255,255,255,0.2)',
-        },
-    },
-    container: {
-        maxWidth: '1200px',
-        margin: '4rem auto',
-        padding: '0 2rem',
-    },
-    card: {
-        background: 'rgba(255,255,255,0.05)',
-        borderRadius: '20px',
-        backdropFilter: 'blur(10px)',
-        padding: '2rem',
-        boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
-        border: '1px solid rgba(255,255,255,0.1)',
-    },
-    backBtn: {
-        background: 'rgba(255,255,255,0.1)',
-        border: 'none',
-        borderRadius: '8px',
-        padding: '0.8rem 1.5rem',
-        color: '#fff',
-        marginBottom: '2rem',
-        cursor: 'pointer',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '0.5rem',
-        transition: 'all 0.3s ease',
-        '&:hover': {
-            background: 'rgba(255,255,255,0.2)',
-        },
-    },
-    title: {
-        textAlign: 'center',
-        marginBottom: '2rem',
-        fontSize: '2rem',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: '1rem',
-    },
-    searchContainer: {
-        marginBottom: '2rem',
-    },
-    searchInner: {
-        position: 'relative',
-        display: 'flex',
-        alignItems: 'center',
-        '& i': {
-            position: 'absolute',
-            left: '1rem',
-            color: 'rgba(255,255,255,0.6)',
-        }
-    },
-    searchInput: {
-        width: '100%',
-        padding: '1rem 1rem 1rem 3rem',
-        borderRadius: '12px',
-        border: 'none',
-        background: 'rgba(255,255,255,0.1)',
-        color: '#fff',
-        fontSize: '1rem',
-        transition: 'all 0.3s ease',
-        '&:focus': {
-            outline: '2px solid #7D49FF',
-        }
-    },
-    cryptoGrid: {
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-        gap: '1.5rem',
-    },
-    cryptoCard: {
-        background: 'rgba(255,255,255,0.05)',
-        borderRadius: '16px',
-        padding: '1.5rem',
-        cursor: 'pointer',
-        transition: 'all 0.3s ease',
-        border: '1px solid rgba(255,255,255,0.1)',
-        '&:hover': {
-            transform: 'translateY(-5px)',
-            background: 'rgba(255, 99, 71, 0.1)',
-            boxShadow: '0 8px 24px rgba(255, 99, 71, 0.1)',
-        }
-    },
-    cryptoHeader: {
-        display: 'flex',
-        alignItems: 'center',
-        gap: '1rem',
-        marginBottom: '1.5rem',
-    },
-    cryptoIcon: {
-        width: '50px',
-        height: '50px',
-        borderRadius: '50%',
-        background: 'linear-gradient(45deg, #FF6347, #FF4500)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontSize: '1.4rem',
-        fontWeight: '600',
-    },
-    cryptoName: {
-        margin: 0,
-        fontSize: '1.2rem',
-        fontWeight: '600',
-    },
-    cryptoSymbol: {
-        margin: 0,
-        color: 'rgba(255,255,255,0.7)',
-        fontSize: '0.9rem',
-    },
-    priceContainer: {
-        borderTop: '1px solid rgba(255,255,255,0.1)',
-        paddingTop: '1rem',
-    },
-    priceLabel: {
-        color: 'rgba(255,255,255,0.6)',
-        fontSize: '0.9rem',
-        marginBottom: '0.5rem',
-    },
-    cryptoPrice: {
-        margin: 0,
-        fontSize: '1.4rem',
-        fontWeight: '600',
-        color: '#FF6347',
-    },
-    pagination: {
-        marginTop: '2rem',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: '0.5rem',
-    },
-    pageArrow: {
-        background: 'rgba(255,255,255,0.1)',
-        border: 'none',
-        borderRadius: '8px',
-        width: '40px',
-        height: '40px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        cursor: 'pointer',
-        color: '#fff',
-        transition: 'all 0.3s ease',
-        '&:hover:not(:disabled)': {
-            background: 'rgba(255,255,255,0.2)',
-        },
-        '&:disabled': {
-            opacity: 0.5,
-            cursor: 'not-allowed',
-        }
-    },
-    pageNumber: {
-        background: 'rgba(255,255,255,0.1)',
-        border: 'none',
-        borderRadius: '8px',
-        width: '40px',
-        height: '40px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        cursor: 'pointer',
-        color: '#fff',
-        transition: 'all 0.3s ease',
-        '&:hover': {
-            background: 'rgba(255,255,255,0.2)',
-        }
-    },
-    activePage: {
-        background: 'linear-gradient(45deg, #FF6347, #FF4500)',
-        fontWeight: '600',
-    },
-    pageEllipsis: {
-        color: 'rgba(255,255,255,0.6)',
-        padding: '0 1rem',
-    },
-    modalOverlay: {
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        background: 'rgba(0,0,0,0.7)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backdropFilter: 'blur(5px)',
-        zIndex: 2000,
-    },
-    modal: {
-        background: 'rgba(45,45,72,0.95)',
-        borderRadius: '20px',
-        padding: '2rem',
-        width: '400px',
-        border: '1px solid rgba(255,255,255,0.1)',
-        boxShadow: '0 10px 30px rgba(0,0,0,0.3)',
-    },
-    modalTitle: {
-        marginBottom: '1.5rem',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '1rem',
-    },
-    modalContent: {
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '1.5rem',
-    },
-    priceDisplay: {
-        background: 'rgba(255, 99, 71, 0.1)',
-        borderRadius: '12px',
-        padding: '1rem',
-        textAlign: 'center',
-        fontWeight: '600',
-        color: '#FF6347',
-    },
-    inputGroup: {
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '0.5rem',
-    },
-    inputLabel: {
-        fontSize: '0.9rem',
-        color: 'rgba(255,255,255,0.7)',
-    },
-    modalInput: {
-        width: '100%',
-        padding: '1rem',
-        borderRadius: '12px',
-        border: 'none',
-        background: 'rgba(255,255,255,0.1)',
-        color: '#fff',
-        fontSize: '1.1rem',
-        '&:focus': {
-            outline: '2px solid #FF6347',
-        }
-    },
-    totalPrice: {
-        textAlign: 'center',
-        fontSize: '1.2rem',
-        fontWeight: '600',
-        color: 'rgba(255,255,255,0.8)',
-    },
-    modalActions: {
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '1rem',
-    },
-    confirmBtn: {
-        background: 'linear-gradient(45deg, #FF6347, #FF4500)',
-        border: 'none',
-        borderRadius: '12px',
-        padding: '1.2rem',
-        color: '#fff',
-        cursor: 'pointer',
-        fontWeight: '600',
-        transition: 'transform 0.2s ease',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: '0.8rem',
-        '&:hover': {
-            transform: 'scale(1.02)',
-        }
-    },
-    cancelBtn: {
-        background: 'rgba(255,255,255,0.1)',
-        border: '1px solid rgba(255,255,255,0.2)',
-        borderRadius: '12px',
-        padding: '1.2rem',
-        color: '#fff',
-        cursor: 'pointer',
-        fontWeight: '600',
-        transition: 'all 0.3s ease',
-        '&:hover': {
-            background: 'rgba(255,255,255,0.2)',
-        }
-    },
-    errorMessage: {
-        background: 'rgba(255, 71, 71, 0.1)',
-        border: '1px solid rgba(255, 71, 71, 0.3)',
-        borderRadius: '8px',
-        padding: '1rem',
-        color: '#FF6347',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '0.8rem',
-    },
-    loadingContainer: {
-        padding: '2rem',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: '1rem',
-    },
-    loadingText: {
-        color: 'rgba(255,255,255,0.7)',
-    },
-};
-
-// Add global animations
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes float {
-        0% { transform: translateY(0) translateX(0); opacity: 0; }
-        50% { transform: translateY(-100vh) translateX(100vw); opacity: 1; }
-        100% { transform: translateY(0) translateX(0); opacity: 0; }
-    }
-    
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-    @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
-`;
-document.head.appendChild(style);
 
 export default SellCrypto;

@@ -1,6 +1,4 @@
-// WaveBackground.js
 import React from 'react';
-
 const StartWaveBackground = () => {
     return (
         <div style={styles.waveContainer}>

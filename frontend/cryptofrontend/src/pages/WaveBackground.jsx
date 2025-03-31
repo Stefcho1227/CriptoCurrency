@@ -1,4 +1,3 @@
-// WaveBackground.jsx
 import React from 'react';
 import Wavify from 'react-wavify';
 
@@ -9,8 +8,8 @@ function WaveBackground() {
                 fill="#8A56FF"
                 paused={false}
                 options={{
-                    height: 40,      // amplitude
-                    amplitude: 30,   // wave variation
+                    height: 40,
+                    amplitude: 30,
                     speed: 0.2,
                     points: 3
                 }}
@@ -24,12 +23,10 @@ const styles = {
         position: 'absolute',
         left: 0,
         width: '100%',
-        // Height for the wave container
         height: '300px',
-        // Shift the wave down using transform:
         transform: 'translateY(140px)',
-        zIndex: 0,         // behind main content
-        overflow: 'hidden' // avoid horizontal scrollbars
+        zIndex: 0,
+        overflow: 'hidden'
     }
 };
 

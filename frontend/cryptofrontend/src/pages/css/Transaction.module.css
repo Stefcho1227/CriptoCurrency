@@ -1,0 +1,331 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
+
+@keyframes float {
+    0% {
+        transform: translateY(0) translateX(0);
+        opacity: 0;
+    }
+    50% {
+        transform: translateY(-100vh) translateX(100vw);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(0) translateX(0);
+        opacity: 0;
+    }
+}
+
+.page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    overflow: hidden;
+    position: relative;
+}
+
+.particles {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.particle {
+    position: absolute;
+    background: rgba(255,255,255,0.1);
+    border-radius: 50%;
+    animation: float 20s infinite linear;
+    width: 8px;
+    height: 8px;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 5%;
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.navLeft {
+}
+
+.brand {
+    font-size: 1.8rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+}
+
+.brandGradient {
+    background: linear-gradient(45deg, #9F65FF, #7D49FF);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.navRight {
+    display: flex;
+    align-items: center;
+}
+
+.navButton {
+    background: rgba(255,255,255,0.1);
+    border: none;
+    border-radius: 8px;
+    padding: 0.8rem 1.5rem;
+    color: #fff;
+    margin-left: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.navButton:hover {
+    background: rgba(255,255,255,0.2);
+}
+
+.container {
+    max-width: 1200px;
+    margin: 4rem auto;
+    padding: 0 2rem;
+}
+
+.card {
+    background: rgba(255,255,255,0.05);
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+    padding: 2rem;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.backBtn {
+    background: rgba(255,255,255,0.1);
+    border: none;
+    border-radius: 8px;
+    padding: 0.8rem 1.5rem;
+    color: #fff;
+    margin-bottom: 2rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.backBtn:hover {
+    background: rgba(255,255,255,0.2);
+}
+
+.title {
+    text-align: center;
+    margin-bottom: 2rem;
+    font-size: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.searchContainer {
+    flex: 1;
+    min-width: 300px;
+    position: relative;
+}
+
+.searchInner {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.searchInner i {
+    position: absolute;
+    left: 1rem;
+    color: rgba(255,255,255,0.6);
+}
+
+.searchInput {
+    width: 100%;
+    padding: 1rem 1rem 1rem 3rem;
+    border-radius: 12px;
+    border: none;
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.searchInput:focus {
+    outline: 2px solid #7D49FF;
+}
+
+.filterGroup {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.filterLabel {
+    color: rgba(255,255,255,0.7);
+    font-size: 0.9rem;
+}
+
+.filterSelect {
+    background: rgba(255,255,255,0.1);
+    border: none;
+    border-radius: 8px;
+    padding: 0.8rem 1rem;
+    color: #fff;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+.filterSelect:focus {
+    outline: 2px solid #7D49FF;
+}
+
+.filterSelect option {
+    background-color: #1a1a2e;
+    color: #fff;
+    padding: 0.5rem;
+}
+
+/* Table */
+.tableContainer {
+    overflow-x: auto;
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 800px;
+}
+
+.th {
+    padding: 1.2rem;
+    background: rgba(159,101,255,0.1);
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: rgba(255,255,255,0.9);
+}
+
+.tr {
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    transition: all 0.2s ease;
+}
+
+.tr:hover {
+    background: rgba(255,255,255,0.03);
+}
+
+.td {
+    padding: 1.2rem;
+    font-size: 0.95rem;
+    color: rgba(255,255,255,0.8);
+}
+
+.typeBadge {
+    display: flex;
+    align-items: center;
+}
+
+.cryptoCell {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.cryptoIcon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(45deg, #7D49FF, #9F65FF);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+}
+
+.loadingContainer {
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.loadingText {
+    color: rgba(255,255,255,0.7);
+}
+
+.emptyState {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+    text-align: center;
+}
+
+.emptyIcon {
+    font-size: 3rem;
+    color: rgba(255,255,255,0.2);
+    margin-bottom: 1.5rem;
+}
+
+.emptyText {
+    color: rgba(255,255,255,0.7);
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+}
+
+.browseButton {
+    background: linear-gradient(45deg, #7D49FF, #9F65FF);
+    border: none;
+    border-radius: 12px;
+    padding: 1rem 2rem;
+    color: #fff;
+    cursor: pointer;
+    font-weight: 600;
+    transition: transform 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.browseButton:hover {
+    transform: translateY(-2px);
+}
+
+.bold {
+    font-weight: 600;
+}
+.buyColor {
+    color: #4CAF50;
+}
+.sellColor {
+    color: #F44336;
+}
